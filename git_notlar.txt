@@ -1,0 +1,24 @@
+1. git ve github birbirinden farklıdır.
+2. git local olarak versiyon management yaparken github online olarak
+   versiyon kontrolü yapıyor.
+3. PUSH ====> git ten github a göndermek
+4. REPOSITORY ====> the location where your code history is stored.
+5. BRANCH ====> commitleri içeren klasör olarak düşünülebilir.
+6. COMMITS ====> Yazdığımız Code un farklı versiyonları.
+
+7. git init ====> boş bir repository oluşturur.
+8. git status ====> repository durumunu gösterir. 
+9. git add . ====> klasördeki tüm dosyaları takip sistemine alır.
+10. git commit -m "commit name" ====> versiyon oluşturur.
+11. git branch ====> branchları gösterir.
+12.  git log ====> git in yaptığı işlemleri gösterir (q ile çıkılır)
+13. git checkout COMMIT_ID ====> daha önceki bir commite bakmak için kullanılır.
+14. git master ====> last commit e gider.
+15. git reset --hard COMMIT_ID ====>  daha önceki commite kesin dönüş yapmak için kullanılır.
+16. git checkout -- . ====> güncel commite geri döner. 
+17. git checkout -b BRANCH_NAME ====> yeni branch yapmak için.
+18. git checkout BRANCH_NAME ====> branch değiştirmek için.
+19. git merge BRANCH_NAME ====> master dan basılması gerekir. Branchı master ile birleştirir.
+20. git branch -D BRANCH_NAME ====> branch ı silmek için kullanılır.
+21. git push ===> değişiklikleri github a gönderiyor.
+22. git pull ===> github la sync yapıyor.

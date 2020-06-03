@@ -1,0 +1,671 @@
+Flutter Notlarım:
+
+1. .idea klasörü: Android studio için bazı configurationları içeriyor.
+2. .vscode: Visual studio code için configurationlarını içerir.
+3. android klasörü: Yaptığımız programın android versiyonunu içeren
+    klasör. 
+4. build klasörü: flutterın build için kullandığı klasör.
+5. IOS klasörü: Yaptığımız programın IOS versiyonunu içerir.
+6. lib klasörü: bizim ürettiğimiz dosyaları içeren ana klasör.
+7. .gitignore: git ayarlarını içeren dosya.
+8. pubspec.yaml: dependencies i manage etmek için kullanılır.
+                font ve images i yönetmek için de kullanılır.
+
+Ders 21. Dart Basics
+void main() {
+    for (int i =0; i < 5; i++) {
+        print('hello ${i + 1}');
+    }
+}
+
+1. app başladığı zaman dart otomatik olarak main() function ını 
+çalıştırıyor.
+
+addNumbers(num1, num2) {
+  
+}
+
+2. addNumbers ı çalıştırmak için 
+
+void main() {
+    addNumbers(1, 2)
+}
+
+3. fonksiyonun içini dolduralım 
+
+addNumbers(num1, num2) {
+  num1 + num2;
+}
+
+4. yukarıdaki fonksiyonun herhangi bir çıkışı yok.
+  şimdi ise ekranda verdiğimiz iki sayının toplamını
+  görürüz.
+
+addNumbers(num1, num2) {
+  print(num1 + num2);
+}
+
+5. Dart değişkenlerin type larını vermemiz gereken bir programlama
+dilidir.
+
+addNumbers(int num1, int num2) {
+  print(num1 + num2);
+}
+
+addNumbers(double num1, double num2) {
+  print(num1 + num2);
+}
+
+6. fonksiyonların da tipini belirtmemiz gerekir. şu durumda void
+çünkü bir return yok.
+
+void addNumbers(double num1, double num2) {
+  print(num1 + num2);
+}
+
+7. void olmadığı durumda tipini vermemiz gerekir.
+
+double addNumbers(double num1, double num2) {
+  //print(num1 + num2);
+  return num1+num2;
+}
+
+Ders 22 - More Dart Basics
+
+1. Variables
+variableları tanıtırken tipini vermemiz gerekir.
+
+double addNumbers(double num1, double num2) {
+  //print(num1 + num2);
+  return num1+num2;
+}
+
+void main() {
+    var firstResult = addNumbers(1, 2.6);
+    print(firstResult + 1)
+}
+
+2. var tipi ne demek?
+    Dart ta type inference özelliği var. yani var kullanırsak
+    eşitliğin diğer tarafındaki şeyin type ında bir variable 
+    oluşturmuş oluruz.
+
+3. eğer variable ı kullanmadan önce oluşturacaksak o zaman
+  aşağıdaki gibi beklediğimiz tipi vererek oluşturabiliriz.
+
+ void main() {
+    double firstResult;
+    firstResult = addNumbers(1, 2.6);
+    print(firstResult + 1)
+}
+ 
+4. Object Oriented Programming (OOP)
+
+Örnek: aşağıda ayrı ayrı isim ve yaş değişkenleri tanımladık.
+Eğer bu şekilde çok girdimiz olacaksa, o zaman bunu yaş ı ve 
+ismi bulunan bir objeye dönüştürmemiz daha verimli olur.
+
+double addNumbers(double num1, double num2) {
+  //print(num1 + num2);
+  return num1+num2;
+}
+
+void main() {
+    String name = 'Max';
+    int age = 30;
+    var firstResult = addNumbers(1, 2.6);
+    print(firstResult + 1)
+}
+
+5. (OOP) Person objesi sınıfının iki property si var.
+property = variable in class
+aşağıda iki özellik (property) verdiğimiz Person objesini
+oluşturduk.
+p1 i person objesi olarak oluşturduk.
+iki özellği (property)
+p1.name  
+p1.age
+
+p2 i person objesi olarak oluşturduk.
+p2.name = 'Manu' diyerek onun adını değiştirdik.
+
+class Person {
+  String name = 'Max';
+  int age = 30;
+}
+
+double addNumbers(double num1, double num2) {
+  //print(num1 + num2);
+  return num1+num2;
+}
+
+void main() {
+    var p1 = Person();
+    var p2 = Person();
+    p2.name = 'Manu';
+    String name = 'Max';
+    int age = 30;
+    var firstResult = addNumbers(1, 2.6);
+    print(firstResult + 1)
+}
+
+24. Building an App from scratch
+1. flutter tamamen widget lerden oluşur.
+aslında bir widget ağacı demek daha doğru olur.
+bir widget objesi oluşturuyoruz: MyApp.
+
+MyApp özelliklerini bir daha önce oluşturulmuş başka bir sınıftan
+devşirecek. Bunu yapmak için extends kelimesini kullanacağız.
+Daha sonra parantez içinde {} bu sınıf için kendi istediğimiz
+özelleştirmeleri yazacağız.
+Bunun için o sınıfın içinde olduğu kütüphaneyi import etmemiz
+gerekiyor.
+
+import 'package:flutter/material.dart';
+
+void main() {
+
+}
+
+class MyApp extends StatelessWidget {
+
+
+}
+
+2. her sınıfın içinde bir build metodu oluşturmamız gerek.
+class ların içindeki function lara method diyoruz.
+build i BuildContext context argument i ile kullanıyoruz. Bu ilerde
+işimize yarayabilir şimdi bir işimiz yok.
+build methodu bir widget return edecek.
+
+
+import 'package:flutter/material.dart';
+
+void main() {
+
+}
+
+class MyApp extends StatelessWidget {
+  Widget build(BuildContext context){
+    return MaterialApp();
+  }
+
+}
+
+3. MaterialApp bir çok argument i içerir.
+  home: argument i programın anasayfasını içeren widget i gösterir.
+  Şimdilik bir Text widgeti kullanacağız.
+  ekranda birşeyler görebilmek için runApp(); eklememiz gerekiyor.
+  runApp( )  e argument olarak ana widgetimizi vermemiz gerekiyor.
+  runApp(MyApp()) burada MyApp sonrasında parantez () olmazsa
+  type olarak vermiş oluruz. Objenin kendisini vermek için parantez
+  kullanıyoruz.
+
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+  class MyApp extends StatelessWidget {
+  Widget build(BuildContext context){
+    return MaterialApp(home: Text('Hello!'),);
+  }
+
+}
+
+26. Ders - Class Constructors & Named Arguments
+
+1. sınıflardan obje oluştururken özelliklere değer verebiliriz.
+mesela Person('Max', 30)
+ama bunun için bir constructor oluşturmamız gerekir.
+constructor class içerisinde bir methoddur (yani fonksiyon).
+İlgili class tan bir obje oluşturulduğu zaman bir defa çalışır.
+yani her obje için constructor bir defa çalışır.
+Constructor ın isminin class ismi ile aynı olması gerekir.
+this kelimesi class level variable lara ulaşmak için kullanılır.
+
+
+class Person {
+  String name;
+  int age;
+
+  Person(String inputName, int inputAge) {
+    this.name = inputName
+    this.age = inputAge
+  }
+}
+
+double addNumbers(double num1, double num2) {
+  //print(num1 + num2);
+  return num1+num2;
+}
+
+void main() {
+    var p1 = Person('Max', 30);
+    var p2 = Person('Manu', 31);
+    p2.name = 'Manu';
+    String name = 'Max';
+    int age = 30;
+    var firstResult = addNumbers(1, 2.6);
+    print(firstResult + 1)
+}
+
+2. Named Arguments
+named argument kullanmak için constructor içinde argumentleri
+{} içinde vermemiz gerekir. named argument kullanırsak sıralamanın
+önemi kalmaz ama obje çağırılırken argument isimlerini
+ kullanmak daha iyi olur.
+ Person({String inputName, int inputAge}) {}
+
+class Person {
+  String name;
+  int age;
+
+  Person({String inputName, int inputAge}) {
+    this.name = inputName
+    this.age = inputAge
+  }
+}
+
+2. @required :
+bu ifadeyi constructor içerisinde bir argumentin önüne koyarsak
+o argument girilmeden objenin oluşamayacağını söylemiş oluruz.
+Daha sonra o argument girilmeden o obje oluşturulmaya çalışıldığında
+flutter hata verecektir.
+Örnek Person({@required String inputName, int inputAge}) {}
+
+3. constructor ı kısaltmek için aşağıdaki gibi de yazabiliriz.
+ama bunun için class level variable ları argument olarak girmemiz 
+gerekir. (this yardımıyla)
+Person({this.name, this.age});
+
+27. Ders - First Summary & Additional Syntax
+
+1. main() app çalıştığı zaman ilk çalışan şey 
+runApp içine girilen objenin (burada MyApp) build
+methodunu çalıştırır.
+
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+  class MyApp extends StatelessWidget {
+  Widget build(BuildContext context){
+    return MaterialApp(home: Text('Hello!'),);
+  }
+
+}
+
+2. Flutter da tüm widgetler ya StatelessWidget ya da 
+Stateful widget dır.
+Tüm widget lar aslında bir Dart class ıdır ve içlerinde
+bir tane build methodu bulunur.
+@override : aslında buna gerek yok. bu bir decorator.
+daha önce tanımlanmış olan bir class a extend yapılıyorsa
+override otomatik olarak yapılıyor. ama bu override ı 
+bilerek yaptığımızı göstermek için konuluyor.
+
+3. aşağıdaki iki ifade aynı şeyi gösteriyor. 
+ikincisi sadece bir kısaltma.
+
+void main() {
+  runApp(MyApp());
+}
+
+void main() => runApp(MyApp());
+
+28. Ders - Building a Widget Tree
+
+1. Flutter ekrandaki tüm pikselleri kontrol eder.
+Tüm widget tree yi içerecek bir kalıp widgetidir.
+CTRL + Space ile argumentleri incelenebilir.
+Tüm widgetların sonuna virgül koyarsak auto formatting
+daha iyi çalışır. (Shift + Alt + F)
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+  class MyApp extends StatelessWidget {
+  Widget build(BuildContext context){
+    return MaterialApp(home: Scaffold(
+      appBar: AppBar(title: Text('My First App'),),
+      body: Text('This is my default text!'),
+    ),);
+  }
+
+}
+
+2. şimdi body e daha fazla widget ekleyeceğiz.
+bunun için column, row, listview tarzı widgetlar 
+kullanmamız lazım. Bunlar bir widget listesi alabiliyorlar.
+
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+  class MyApp extends StatelessWidget {
+  Widget build(BuildContext context){
+    var questions = ['What\'s your favorite color?',
+                     'What\'s your favorite animal?'];
+
+    return MaterialApp(home: Scaffold(
+      appBar: AppBar(title: Text('My First App'),),
+      body: Column(children: <Widget> [Text('This is my default text!'),
+                                       RaisedButton(child: Text('Answer 1'), onPressed: null,),
+                                       RaisedButton(child: Text('Answer 2'), onPressed: null,),
+                                       RaisedButton(child: Text('Answer 3'), onPressed: null,),                                     
+                                       
+                                        ]), 
+
+    ),);
+  }
+
+}
+
+3. onPressed: null button ı disabled yapıyor. 
+onPressed bir function istiyor. bir widget değil.
+Genel olarak widget ta kullanılan function ları
+aynı class ın içinde yazmak daha doğru olur.
+onPressed e functionları verirken () parantez
+kullanmıyoruz. Eğer parantez kullanırsak 
+koyduğumuz function ın return değerini onPressed e
+veriyoruz demek. 
+
+  void _answerQuestion() {
+   
+    print('answer chosen!');
+  }
+
+
+RaisedButton(
+              child: Text('Answer 1'),
+              onPressed: answerQuestion,
+            ),
+
+4. onPressed için bir başka alternatif ise
+oraya anonymous bir function yapmak
+aşağıdaki gibi:
+
+   RaisedButton(
+              child: Text('Answer 1'),
+              onPressed: () {
+                //anonymous function
+                print('Answer 3 chosen');
+              },
+            ),
+
+Veya onun kısaltılmış versiyonu:
+    RaisedButton(
+              child: Text('Answer 1'),
+              onPressed: () => print('Answer 2 chosen'),
+            ),
+
+
+5. variable tanıtırken mesela liste build methodun
+içinde tanıtmak iyi değil çünkü build method birden
+fazla kere çalışabilir. Bu yüzden class level variable
+kullanmak daha mantıklı. Aşağıdaki questionIndex 
+variable ı gibi:
+
+class MyApp extends StatelessWidget {
+  var questionIndex = 0;
+
+35. Ders - Updating Correctly with Stateful Widgets
+State 
+App State olabilir,
+Widget State olabilir
+
+StatelessWidget lar state sahibi olamaz.
+StatefulWidget lar state sahibi olabilir ve 
+dinamik bir şekilde değiştirilebilir.
+
+StatelessWidget input data değiştiği zaman
+render leniyor.
+
+StatefulWidget ise hem input data değiştiğinde
+hemde internal state değiştiğinde değişir.
+
+StatefulWidget iki class tan oluşur.
+ilk class MyApp extends StatefulWidget {}
+ikincisi class MyAppState extends State<MyApp> {}
+
+niye iki class a ihtiyacımız var?
+ikinci class state i hafızada tutmak için
+işe yarıyor.
+
+iki class ın arasındaki bağlantı aşağıdaki
+iki aşamada kuruluyor.
+1. ikinci class a <MyApp> ekliyoruz.
+2. birinci class a 
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return MyAppState();
+  }
+
+  ekliyoruz.
+
+  build method u state class ında (ikinci)
+  olacak. Çünk build method tarafından
+  kullanılan data state class ının içinde.
+
+  3. ikinci class a state in ne zaman
+  değişeceğini söylememiz gerekiyor. 
+  setState methodunu kullanarak
+  hangi durumda yeniden render gerektiğini
+  belirtiyoruz.
+
+  class _MyAppState extends State<MyApp> {
+  var _questionIndex = 0;
+
+  void _answerQuestion() {
+    setState(() {
+      _questionIndex = _questionIndex + 1;
+    });
+
+    print(_questionIndex);
+  }
+
+  ***** setState ne yapıyor???
+  içinde bulunduğu class ın build methodunu
+  yeniden çalıştırıyor.
+  Tüm app ı baştan çalıştırmıyor. Kısmi olarak
+  güncelliyor yani.
+  Build method ise o kısmı baştan yeniden
+   oluşturuyor. Build method sadece değişen
+   bilgileri ekranda yeniliyor. (efficient yani)
+
+37. Ders - Using Private Properties
+
+1. Flutter da farklı dosyalar birbiriyle import
+vasıtasıyla haberleşir. 
+
+Eğer bir class a başka bir dosyadan erişilmesini
+engellemek istiyorsak class isminin başına '_' 
+karakterini koyuyoruz.
+Örnek:
+başka dosyadan erişilebilen class (public)
+class MyAppState extends State<MyApp> {}
+başka dosyadan erişilemeyen class (private)
+class _MyAppState extends State<MyApp> {}
+
+variable ların başına getirildiğinde 
+ilgili variable a yalnızca kendi dosyasından
+ulaşılabilir. 
+Farklı classlardan yine de ulaşılabiliyor (sanırım)
+
+********** Input Data ne demek??? Ders 38
+
+Genel olarak her dosyada bir widget olması iyi bir 
+kullanım. Yani bir widget class ı ve onun state i.
+
+input data kullanmak için constructor kullanıyoruz.
+örnek:
+
+  final String questionText;
+  // constructor
+  Question(this.questionText);
+
+bu şekilde şunu söylemiş oluyoruz. herhangi bir yerden
+Question class ına ait bir obje oluşturulduğunda yani
+Question class ı çağırıldığında, bir argument isteyecek
+bu argument i biz questionText olarak kaydediyoruz ve
+class içinde işliyoruz.
+
+Dışarıdan çağırmaya örnek:
+
+children: <Widget>[
+            Question(
+              questions[_questionIndex],
+            ),
+            RaisedButton(
+              child: Text('Answer 1'),
+              onPressed: _answerQuestion,
+            ),
+
+Bu şekilde kendimiz bir Question widget ı oluşturmuş
+oluyoruz.
+
+Eğer bir variable ın değerinin değişmesini istemiyorsak
+başına final getiriyoruz.
+
+değiştirilebilir variable:
+String questionText;
+
+değiştirilemez variable:
+final String questionText;
+
+***************************************************
+***************************************************
+************* STYLING & LAYOUT ********************
+
+TextAlign  yazıyı ortalamak için:
+
+textAlign: TextAlign.center,
+
+Font değiştirmek için:
+
+style: TextStyle(fontSize: 28),
+
+Text i ekranda ortalamak için başka bir şeyin
+içine koymak gerekiyor.
+
+Container mesela
+
+bir text i container içine almak için kısayol:
+CTRL + .
+
+width: double.infinity,
+
+container ın kullanabileceği tüm width i kullanmasını
+sağlar.
+
+margin container ın dış etrafına olan boşlukları 
+belirler:
+
+margin: EdgeInsets.all(10),
+
+padding container ın iç etrafına olan boşlukları
+belirler:
+
+padding: ,
+
+margin ile padding arasında border olur,
+border görülebilir, renk verilebilir vs.
+Decoration ile border koyma örneği:
+
+decoration: BoxDecoration(border: Border.all(color: Colors.blueGrey, width: 3,)),
+
+#################################################
+nokta ile farklı constructorlar oluşturulabilir.
+
+örnek :
+Person({this.name,this.age=30});
+
+Person.veryOld(this.name){
+  age=60
+}
+
+bunu çağırırken
+
+p3 = Person.veryOld('Max');
+gibi çağırıyoruz.
+
+
+############################
+WIDGET CATALOG
+https://flutter.dev/docs/development/ui/widgets
+
+***
+Main dart tan başka bir dosyaya function geçirme
+
+main.dart:
+Answer(_answerQuestion),
+answer.dart:
+class Answer extends StatelessWidget {
+  final Function selectHandler;
+
+  Answer(this.selectHandler);
+
+selectHandler variable ımız _answerquestion ı 
+çağırmak için kullanılıyor.
+
+#####
+Map() {} yada  {
+        'questionText': 'What\'s your favorite color?',
+        'answers': ['Black', 'Red', 'Green', 'White']
+      },
+bir çeşit kütüphane gibi çalışıyor.
+
+Daha sonra ulaşmak için:
+questions[_questionIndex]['questionText']
+
+#### 
+3. nokta operatörü (...) 
+başına konduğu listedeki tüm elemanları 
+içinde bulunduğu listeye açıyor.
+
+Örnek:
+['x',...['a','b','c']]=['x','a','b','c']
+
+******************************
+final vs const
+
+final aslında dinamik ama ilgili class bir kere
+oluşturulduğunda kitleniyor ve değişmiyor.
+
+const ise compile edildikten sonra değişmeyen
+şeyler için.
+
+***********************************
+if (userName == 'Max' && password == 'tester') {
+  print('logged in!');
+} else if {
+  print('failed!');
+} else {
+  print('adsdasd');
+}
+
+alternatif gösterim:
+
+userName == 'Max' && password == 'tester' ?  print('logged in!'); : print('adsdasd');
+
+|| or :
+&& and :
+!= not equal:
+== equal
+
+if (username != null) {
+  //...
+}
