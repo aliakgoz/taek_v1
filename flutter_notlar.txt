@@ -669,3 +669,11 @@ userName == 'Max' && password == 'tester' ?  print('logged in!'); : print('adsda
 if (username != null) {
   //...
 }
+
+
+*************************************************************
+*******************DEBUGGING & DART DEVTOOLS ****************
+bir değişkeni izlemek için debug menu de watch tan o değişkeni
+eklememiz gerekiyor.
+
+
