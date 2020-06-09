@@ -3,7 +3,7 @@
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
-// import './widgets.dart';
+// import './widgets2.dart';
 
 // void main() {
 //   runApp(FlutterBlueApp());
@@ -201,7 +201,7 @@
 //   Widget build(BuildContext context) {
 //     return Scaffold(
 //       appBar: AppBar(
-//         title: Text(device.name),
+//         title: Text(device.name),        
 //         actions: <Widget>[
 //           StreamBuilder<BluetoothDeviceState>(
 //             stream: device.state,

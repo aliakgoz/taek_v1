@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:avatar_glow/avatar_glow.dart';
+//import 'package:avatar_glow/avatar_glow.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 //import './question.dart';
 //import './answer.dart';
 import './anasayfa.dart';
-import './example2.dart';
+import './MainPage.dart';
+//import './example2.dart';
 //import './bluetoothpage.dart';
-import './quiz.dart';
-import './result.dart';
+//import './quiz.dart';
+//import './result.dart';
+// import 'bl_example.dart';
+// import 'blt_basic_deneme.dart';
+// import 'blt_basic_example.dart';
+// import 'example.dart';
 
 // void main() {
 //   runApp(MyApp());
@@ -52,7 +58,7 @@ class _MyAppState extends State<MyApp> {
                 color: Colors.blue,
               ),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => FlutterBlueApp()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage()));
               },
             ),
             // action button
