@@ -1,0 +1,27 @@
+sudo systemctl start hciuart
+
+hciconfig
+
+sudo service bluetooth status
+sudo bluetoothctl
+
+power on
+pairable on
+discoverable on
+agent on
+default-agent
+exit
+
+cd pybluez/examples/simple/
+
+sudo nano bluetooth_adv  (açılan dosyaya aşağıdaki 2 satırı yaz)
+
+    hciconfig hci0 piscan
+    sdptool add SP
+
+sudo chmod +x bluetooth_adv
+sudo ./bluetooth_adv
+
+
+
+sudo python3 rfcomm-server.py
