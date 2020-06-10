@@ -4,13 +4,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
-class ChatPage extends StatefulWidget {
+class AnaSayfa extends StatefulWidget {
   final BluetoothDevice server;
 
-  const ChatPage({this.server});
+  const AnaSayfa({this.server});
 
   @override
-  _ChatPage createState() => new _ChatPage();
+  _AnaSayfa createState() => new _AnaSayfa();
 }
 
 class _Message {
@@ -20,11 +20,14 @@ class _Message {
   _Message(this.whom, this.text);
 }
 
-class _ChatPage extends State<ChatPage> {
+StreamController<Uint8List> streamController = new StreamController.broadcast();  
+
+class _AnaSayfa extends State<AnaSayfa> {
   static final clientID = 0;
   BluetoothConnection connection;
 
   List<_Message> messages = List<_Message>();
+  String receivedData = '';
   String _messageBuffer = '';
 
   final TextEditingController textEditingController =
@@ -35,6 +38,8 @@ class _ChatPage extends State<ChatPage> {
   bool get isConnected => connection != null && connection.isConnected;
 
   bool isDisconnecting = false;
+
+  
 
   @override
   void initState() {
@@ -47,9 +52,9 @@ class _ChatPage extends State<ChatPage> {
         isConnecting = false;
         isDisconnecting = false;
       });
-     
+      streamController.addStream(connection.input);
       
-      connection.input.listen(_onDataReceived).onDone(() {
+      streamController.stream.listen(_onDataReceived).onDone(() {
         // Example: Detect which side closed the connection
         // There should be `isDisconnecting` flag to show are we are (locally)
         // in middle of disconnecting process, should be set before calling
@@ -84,81 +89,9 @@ class _ChatPage extends State<ChatPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final List<Row> list = messages.map((_message) {
-      return Row(
-        children: <Widget>[
-          Container(
-            child: Text(
-                (text) {
-                  return text == '/shrug' ? '¯\\_(ツ)_/¯' : text;
-                }(_message.text.trim()),
-                style: TextStyle(color: Colors.white)),
-            padding: EdgeInsets.all(12.0),
-            margin: EdgeInsets.only(bottom: 8.0, left: 8.0, right: 8.0),
-            width: 222.0,
-            decoration: BoxDecoration(
-                color:
-                    _message.whom == clientID ? Colors.blueAccent : Colors.grey,
-                borderRadius: BorderRadius.circular(7.0)),
-          ),
-        ],
-        mainAxisAlignment: _message.whom == clientID
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-      );
-    }).toList();
+  Widget build(BuildContext context) { 
 
-    return Scaffold(
-      appBar: AppBar(
-          title: (isConnecting
-              ? Text('Connecting chat to ' + widget.server.name + '...')
-              : isConnected
-                  ? Text('Live chat with ' + widget.server.name)
-                  : Text('Chat log with ' + widget.server.name))),
-      body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Flexible(
-              child: ListView(
-                  padding: const EdgeInsets.all(12.0),
-                  controller: listScrollController,
-                  children: list),
-            ),
-            Row(
-              children: <Widget>[
-                Flexible(
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 16.0),
-                    child: TextField(
-                      style: const TextStyle(fontSize: 15.0),
-                      controller: textEditingController,
-                      decoration: InputDecoration.collapsed(
-                        hintText: isConnecting
-                            ? 'Wait until connected...'
-                            : isConnected
-                                ? 'Type your message...'
-                                : 'Chat got disconnected',
-                        hintStyle: const TextStyle(color: Colors.grey),
-                      ),
-                      enabled: isConnected,
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(8.0),
-                  child: IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: isConnected
-                          ? () => _sendMessage(textEditingController.text)
-                          : null),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    );
+    return Text(receivedData);
   }
 
   void _onDataReceived(Uint8List data) {
@@ -191,22 +124,11 @@ class _ChatPage extends State<ChatPage> {
     int index = buffer.indexOf(13);
     if (~index != 0) {
       setState(() {
-        messages.add(
-          _Message(
-            1,
-            backspacesCounter > 0
-                ? _messageBuffer.substring(
-                    0, _messageBuffer.length - backspacesCounter)
-                : _messageBuffer + dataString.substring(0, index),
-          ),
-        );
-        _messageBuffer = dataString.substring(index);
+        receivedData = dataString;
+        
       });
     } else {
-      _messageBuffer = (backspacesCounter > 0
-          ? _messageBuffer.substring(
-              0, _messageBuffer.length - backspacesCounter)
-          : _messageBuffer + dataString);
+      
     }
   }
 

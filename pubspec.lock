@@ -29,6 +29,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
+  battery:
+    dependency: transitive
+    description:
+      name: battery
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
+  battery_indicator:
+    dependency: "direct main"
+    description:
+      name: battery_indicator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4"
   boolean_selector:
     dependency: transitive
     description:
@@ -76,6 +90,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_beep:
+    dependency: "direct main"
+    description:
+      name: flutter_beep
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
   flutter_bluetooth_serial:
     dependency: "direct main"
     description:
@@ -207,3 +228,4 @@ packages:
     version: "3.6.1"
 sdks:
   dart: ">=2.7.0 <3.0.0"
+  flutter: ">=1.12.13+hotfix.5 <2.0.0"
