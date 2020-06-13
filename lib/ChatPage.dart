@@ -83,6 +83,7 @@ class _ChatPage extends State<ChatPage> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     final List<Row> list = messages.map((_message) {

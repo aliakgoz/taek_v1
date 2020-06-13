@@ -25,3 +25,17 @@ sudo ./bluetooth_adv
 
 
 sudo python3 rfcomm-server.py
+
+
+sudo systemctl start hciuart
+sudo bluetoothctl
+power on
+pairable on
+discoverable on
+agent on
+default-agent
+exit
+cd pybluez/examples/simple/
+sudo chmod +x bluetooth_adv
+sudo ./bluetooth_adv
+sudo python3 rfcomm-server.py
