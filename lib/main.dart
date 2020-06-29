@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+// import 'dart:html';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:avatar_glow/avatar_glow.dart';
@@ -7,7 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_basics_quiz_app/AnaSayfa2.dart';
 import 'package:flutter_beep/flutter_beep.dart';
 import 'package:battery_indicator/battery_indicator.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
+// import 'package:google_fonts/google_fonts.dart';
+// import 'package:chart_engine/chart_engine_apexcharts.dart';
+// import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +25,7 @@ import './BackgroundCollectingTask.dart';
 import './BackgroundCollectedPage.dart';
 import './MainPage.dart';
 import './anaSayfa.dart';
+import './TimeSeriesBar.dart';
 import 'helpers/LineChart.dart';
 import 'helpers/PaintStyle.dart';
 //import './example2.dart';
@@ -69,10 +75,13 @@ String ham_temp = '';
 String ham_bat = '';
 String orta_dugme = 'Cihaza Bağlan';
 String status_text = '';
+String dataString = '';
 
 var my_duration = Duration(milliseconds: 2500);
 
 var _styleIndex = 0;
+
+List<TimeSeriesSales> chart_data_list = new List();
 
 var _colorful = true;
 var sound_enabled = true;
@@ -81,9 +90,9 @@ var _showPercentNum = true;
 var connected_device = '';
 var avaratar_glow_on = false;
 double device_info_icons_on = 0;
-var title_font = GoogleFonts.jomhuria(
-  textStyle: TextStyle(color: Colors.indigo, letterSpacing: .5, fontSize: 90),
-);
+// var title_font = GoogleFonts.jomhuria(
+//   textStyle: TextStyle(color: Colors.indigo, letterSpacing: .5, fontSize: 90),
+// );
 
 var my_bl_state = BluetoothBondState.fromUnderlyingValue(10);
 
@@ -92,7 +101,7 @@ var _size = 18.0;
 
 var _ratio = 3.0;
 
-List<double> cpm_received = List<double>();
+// List<double> cpm_received = List<double>();
 
 // List<tim> cpm_received_time;
 
@@ -123,6 +132,7 @@ class _MyAppState extends State<MyApp> {
 
   String _address = "...";
   String _name = "...";
+  String _messageBuffer = '';
 
   Timer _discoverableTimeoutTimer;
   int _discoverableTimeoutSecondsLeft = 0;
@@ -179,54 +189,48 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _onDataReceived(Uint8List data) {
-    // if (data = null) {
-    //   setState(() {
-    //     _visible = true;
-    //     status_text = 'Bağlantı Koptu';
-    //   });
-    // }
+    print(data);
     // Allocate buffer for parsed data
-    int backspacesCounter = 0;
-    data.forEach((byte) {
-      if (byte == 8 || byte == 127) {
-        backspacesCounter++;
-      }
-    });
-    Uint8List buffer = Uint8List(data.length - backspacesCounter);
-    int bufferIndex = buffer.length;
+  
+    Uint8List buffer = Uint8List(data.length);
+ 
 
-    // Apply backspace control character
-    backspacesCounter = 0;
-    for (int i = data.length - 1; i >= 0; i--) {
-      if (data[i] == 8 || data[i] == 127) {
-        backspacesCounter++;
-      } else {
-        if (backspacesCounter > 0) {
-          backspacesCounter--;
-        } else {
-          buffer[--bufferIndex] = data[i];
-        }
-      }
+     // Create message if there is new line character
+    dataString = String.fromCharCodes(data);
+    print(dataString);
+    //int index = dataString.indexOf('x');
+    int index = data.indexOf(120);
+    print(index);
+        if (~index != 0) {
+      setState(() {
+        String myString = _messageBuffer + dataString.substring(0, index);
+        _messageBuffer = dataString.substring(index);
+        print(_messageBuffer);
+        receivedData = myString.replaceAll('x', '');
+        ham_count = receivedData.split(',')[0];
+        print( receivedData.split(','));
+        print(ham_count);
+        //cpm_received.add(double.parse(ham_count));
+        // cpm_received_time.add(TimeOfDay.now());
+
+        // chart_data_list
+        //     .add(TimeSeriesSales(DateTime.now(), int.parse(ham_count)));
+        ham_temp = receivedData.split(',')[1];
+        ham_bat = receivedData.split(',')[2];
+        print(ham_temp);
+        print(ham_bat);
+        battery_level = ((double.parse(ham_bat) % 1024) / 1024 * 100).round();
+        temp_level = ((double.parse(ham_temp) % 1024) / 1024 * 100).round();
+        sound_enabled ? FlutterBeep.beep() : {};
+        avaratar_glow_on = true;
+        device_info_icons_on = 1;
+        // Scaffold.of(_myapp_key.currentContext).showSnackBar(snackBar);
+
+        
+      });
+    } else {
+      _messageBuffer = _messageBuffer + dataString;
     }
-
-    // Create message if there is new line character
-    String dataString = String.fromCharCodes(buffer);
-
-    setState(() {
-      receivedData = dataString;
-      ham_count = receivedData.split(',')[0];
-      // cpm_received.add(double.parse(ham_count));
-      // cpm_received_time.add(TimeOfDay.now());
-
-      ham_temp = receivedData.split(',')[1];
-      ham_bat = receivedData.split(',')[2];
-      battery_level = ((double.parse(ham_bat) % 1024) / 1024 * 100).round();
-      temp_level = ((double.parse(ham_temp) % 1024) / 1024 * 100).round();
-      sound_enabled ? FlutterBeep.beep() : {};
-      avaratar_glow_on = true;
-      device_info_icons_on = 1;
-      // Scaffold.of(_myapp_key.currentContext).showSnackBar(snackBar);
-    });
   }
 
   Future waitWhile(bool test(), [Duration pollInterval = Duration.zero]) {
@@ -244,25 +248,51 @@ class _MyAppState extends State<MyApp> {
   }
 
   void my_func() async {
-    await waitWhile(() => connection.isConnected).then((value) => {
-          setState(() {
-            showDialog(
-              context: context,
-              child: new AlertDialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(80.0)),
-                // title: new Text("My Super title"),
-                content: new Text(
-                  connected_device + ' bağlantısı koptu' + TimeOfDay.now().toString(),
-                  textAlign: TextAlign.center,
+    if (connection != null) {
+      await waitWhile(() => connection.isConnected).then((value) => {
+            setState(() {
+              showDialog(
+                context: context,
+                child: new AlertDialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(80.0)),
+                  // title: new Text("My Super title"),
+                  content: new Text(
+                    connected_device + ' bağlantısı koptu'
+                    // + TimeOfDay.now().toString()
+                    ,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              ),
-            );
-            // await Scaffold.of(context).showSnackBar(snackBar);
-          }),
-        });
+              );
+              // await Scaffold.of(context).showSnackBar(snackBar);
+            }),
+          });
+    }
   }
 
+  // void my_chart() async {
+  //   var series = ChartSeries([
+  //     'Jan',
+  //     'Feb',
+  //     'Mar'
+  //   ], {
+  //     'A': [10, 20, 5],
+  //     'B': [15, 25, 55],
+  //     'C': [100, 130, 140]
+  //   });
+
+  //   series.title = 'Chart Example';
+  //   series.xTitle = 'Months';
+  //   series.yTitle = 'Count';
+  //   series.options.fillLines = true;
+  //   series.options.straightLines = true;
+
+  //   //var charEngine = ChartEngineChartJS() ;
+  //   var charEngine = ChartEngineApexCharts();
+  //   await charEngine.load();
+  //   charEngine.renderLineChart(querySelector('#output'), series);
+  // }
   // @override
   // void dispose() {
   //   FlutterBluetoothSerial.instance.setPairingRequestHandler(null);
@@ -294,6 +324,16 @@ class _MyAppState extends State<MyApp> {
                     MaterialPageRoute(builder: (context) => MainPage()));
               },
             ),
+            IconButton(
+              icon: Icon(
+                Icons.info_outline,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => MainPage()));
+              },
+            ),
             // action button
           ],
         ),
@@ -314,10 +354,23 @@ class _MyAppState extends State<MyApp> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    alignment: Alignment.center,
+                    alignment: Alignment.bottomCenter,
                     constraints: BoxConstraints(minHeight: 100, maxHeight: 200),
-                    child: Text("RHTD",
-                        style: title_font, textAlign: TextAlign.center),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Text("RHTD",
+                            style: TextStyle(
+                                fontSize: 45,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepOrange),
+                            textAlign: TextAlign.center),
+                        Text("Sintilatörlü Dozimetre Cihazı\n",
+                            style:
+                                TextStyle(fontSize: 30, color: Colors.indigo),
+                            textAlign: TextAlign.center),
+                      ],
+                    ),
                   ),
                   // Text(
                   //     "\n Radyasyon Ölçüm Cihazı \n Bağlantı ve Analiz Programı",
@@ -403,7 +456,7 @@ class _MyAppState extends State<MyApp> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Text(
-                              'cpm',
+                              'uSv/saat',
                               style:
                                   TextStyle(fontSize: 25, color: Colors.white),
                             ),
@@ -430,9 +483,11 @@ class _MyAppState extends State<MyApp> {
                         IconButton(
                           icon: Icon(
                             Icons.radio_button_checked,
-                            color: connection.isConnected
-                                ? Colors.green
-                                : Colors.red,
+                            color: connection == null
+                                ? Colors.grey
+                                : connection.isConnected
+                                    ? Colors.green
+                                    : Colors.red,
                           ),
                         ),
                         Text(connected_device + ':      '),
@@ -448,7 +503,7 @@ class _MyAppState extends State<MyApp> {
                         ),
                         IconButton(
                           icon: Icon(
-                            Icons.music_note,
+                            Icons.volume_down,
                             color: sound_enabled ? Colors.blue : Colors.grey,
                           ),
                           onPressed: () => {
@@ -462,7 +517,8 @@ class _MyAppState extends State<MyApp> {
                       ],
                     ),
                   ),
-                  
+
+                  // my_chart,
                 ],
               ),
             )),
@@ -519,9 +575,9 @@ class _MyAppState extends State<MyApp> {
         // If we except the disconnection, `onDone` should be fired as result.
         // If we didn't except this (no flag set), it means closing by remote.
         if (isDisconnecting) {
-          print('Disconnecting locally!');
+          print('Bağlantı bu cihazdan koparıldı!');
         } else {
-          print('Disconnected remotely!');
+          print('Bağlantı uzaktan kapatıldı!');
         }
         if (this.mounted) {
           setState(() {});
@@ -538,5 +594,38 @@ class _MyAppState extends State<MyApp> {
           'Cannot connect, exception occured***************************************************');
       print(error);
     });
+  }
+}
+
+class my_chart extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new charts.TimeSeriesChart(
+      [
+        new charts.Series<TimeSeriesSales, DateTime>(
+          id: 'Sales',
+          colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+          domainFn: (TimeSeriesSales sales, _) => sales.time,
+          measureFn: (TimeSeriesSales sales, _) => sales.sales,
+          data: chart_data_list != null
+              ? chart_data_list
+              : [
+                  new TimeSeriesSales(new DateTime(2017, 9, 1), 5),
+                  new TimeSeriesSales(new DateTime(2017, 9, 2), 10),
+                ],
+        )
+      ],
+      animate: false,
+      // Set the default renderer to a bar renderer.
+      // This can also be one of the custom renderers of the time series chart.
+      defaultRenderer: new charts.BarRendererConfig<DateTime>(),
+      // It is recommended that default interactions be turned off if using bar
+      // renderer, because the line point highlighter is the default for time
+      // series chart.
+      defaultInteractions: false,
+      // If default interactions were removed, optionally add select nearest
+      // and the domain highlighter that are typical for bar charts.
+      behaviors: [new charts.SelectNearest(), new charts.DomainHighlighter()],
+    );
   }
 }

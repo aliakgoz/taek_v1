@@ -52,8 +52,8 @@ print("Accepted connection from", address)
 i = 0
 while True:
     i = i + 1
-    time.sleep(0.5)
-    client_sock.send(bytes(str(i) +",25.3,"+str(i*10)+",\r\n", 'utf-8'))
+    time.sleep(0.5)    
+    client_sock.send(bytes(str(i) +",25.3,"+str(i*10)+",x", 'utf-8'))
     #data = client_sock.recv(1024)
     #print("Data received:", str(data))
 
