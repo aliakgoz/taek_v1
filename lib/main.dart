@@ -4,40 +4,17 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:avatar_glow/avatar_glow.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 //import 'package:flutter/services.dart';
-import 'package:flutter_basics_quiz_app/AnaSayfa2.dart';
+import 'package:flutter_basics_quiz_app/infopage.dart';
 import 'package:flutter_beep/flutter_beep.dart';
 import 'package:battery_indicator/battery_indicator.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:chart_engine/chart_engine_apexcharts.dart';
-// import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+// import 'package:charts_flutter/flutter.dart' as charts;
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-
-import 'package:provider/provider.dart';
-import 'package:scoped_model/scoped_model.dart';
-
-import './DiscoveryPage.dart';
 import './SelectBondedDevicePage.dart';
-import './ChatPage.dart';
 import './BackgroundCollectingTask.dart';
-import './BackgroundCollectedPage.dart';
 import './MainPage.dart';
-import './anaSayfa.dart';
-import './TimeSeriesBar.dart';
-import 'helpers/LineChart.dart';
-import 'helpers/PaintStyle.dart';
-//import './example2.dart';
-//import './bluetoothpage.dart';
-//import './quiz.dart';
-//import './result.dart';
-// import 'bl_example.dart';
-// import 'blt_basic_deneme.dart';
-// import 'blt_basic_example.dart';
-// import 'example.dart';
 
 // void main() {
 //   runApp(MyApp());
@@ -84,7 +61,7 @@ var my_duration = Duration(milliseconds: 2500);
 
 var _styleIndex = 0;
 
-List<TimeSeriesSales> chart_data_list = new List();
+// List<TimeSeriesSales> chart_data_list = new List();
 
 var my_device_connected = false;
 var _colorful = true;
@@ -342,7 +319,7 @@ class _MyAppState extends State<MyApp> {
               ),
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MainPage()));
+                    MaterialPageRoute(builder: (context) => Myinfopage()));
               },
             ),
             // action button
@@ -655,35 +632,35 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class my_chart extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new charts.TimeSeriesChart(
-      [
-        new charts.Series<TimeSeriesSales, DateTime>(
-          id: 'Sales',
-          colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-          domainFn: (TimeSeriesSales sales, _) => sales.time,
-          measureFn: (TimeSeriesSales sales, _) => sales.sales,
-          data: chart_data_list != null
-              ? chart_data_list
-              : [
-                  new TimeSeriesSales(new DateTime(2017, 9, 1), 5),
-                  new TimeSeriesSales(new DateTime(2017, 9, 2), 10),
-                ],
-        )
-      ],
-      animate: false,
-      // Set the default renderer to a bar renderer.
-      // This can also be one of the custom renderers of the time series chart.
-      defaultRenderer: new charts.BarRendererConfig<DateTime>(),
-      // It is recommended that default interactions be turned off if using bar
-      // renderer, because the line point highlighter is the default for time
-      // series chart.
-      defaultInteractions: false,
-      // If default interactions were removed, optionally add select nearest
-      // and the domain highlighter that are typical for bar charts.
-      behaviors: [new charts.SelectNearest(), new charts.DomainHighlighter()],
-    );
-  }
-}
+// class my_chart extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return new charts.TimeSeriesChart(
+//       [
+//         new charts.Series<TimeSeriesSales, DateTime>(
+//           id: 'Sales',
+//           colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+//           domainFn: (TimeSeriesSales sales, _) => sales.time,
+//           measureFn: (TimeSeriesSales sales, _) => sales.sales,
+//           data: chart_data_list != null
+//               ? chart_data_list
+//               : [
+//                   new TimeSeriesSales(new DateTime(2017, 9, 1), 5),
+//                   new TimeSeriesSales(new DateTime(2017, 9, 2), 10),
+//                 ],
+//         )
+//       ],
+//       animate: false,
+//       // Set the default renderer to a bar renderer.
+//       // This can also be one of the custom renderers of the time series chart.
+//       defaultRenderer: new charts.BarRendererConfig<DateTime>(),
+//       // It is recommended that default interactions be turned off if using bar
+//       // renderer, because the line point highlighter is the default for time
+//       // series chart.
+//       defaultInteractions: false,
+//       // If default interactions were removed, optionally add select nearest
+//       // and the domain highlighter that are typical for bar charts.
+//       behaviors: [new charts.SelectNearest(), new charts.DomainHighlighter()],
+//     );
+//   }
+// }
