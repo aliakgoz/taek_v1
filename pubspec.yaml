@@ -37,6 +37,7 @@ dependencies:
   #flutter_bluetooth_basic: ^0.1.5
   avatar_glow: ^1.1.0
   line_awesome_flutter: ^1.0.1
+ 
   
 
   # The following adds the Cupertino Icons font to your application.

@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+//import 'package:flutter/services.dart';
 import 'package:flutter_basics_quiz_app/AnaSayfa2.dart';
 import 'package:flutter_beep/flutter_beep.dart';
 import 'package:battery_indicator/battery_indicator.dart';
@@ -15,6 +16,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 // import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+
 import 'package:provider/provider.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -76,6 +78,7 @@ String ham_bat = '';
 String orta_dugme = 'Cihaza Bağlan';
 String status_text = '';
 String dataString = '';
+double double_count = 0;
 
 var my_duration = Duration(milliseconds: 2500);
 
@@ -83,13 +86,14 @@ var _styleIndex = 0;
 
 List<TimeSeriesSales> chart_data_list = new List();
 
+var my_device_connected = false;
 var _colorful = true;
 var sound_enabled = true;
 var _showPercentSlide = true;
 var _showPercentNum = true;
 var connected_device = '';
 var avaratar_glow_on = false;
-double device_info_icons_on = 0;
+double device_info_icons_on = 1;
 // var title_font = GoogleFonts.jomhuria(
 //   textStyle: TextStyle(color: Colors.indigo, letterSpacing: .5, fontSize: 90),
 // );
@@ -100,6 +104,8 @@ var my_server_adress;
 var _size = 18.0;
 
 var _ratio = 3.0;
+
+// var soundId;
 
 // List<double> cpm_received = List<double>();
 
@@ -145,6 +151,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
+    // soundId = await rootBundle.load("sounds/bip_geiger1.wav").then((ByteData soundData) {
+    //           return pool.load(soundData);
+    //         });
     // Get current state
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
@@ -189,26 +198,27 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _onDataReceived(Uint8List data) {
+    print('Data:');
     print(data);
     // Allocate buffer for parsed data
-  
-    Uint8List buffer = Uint8List(data.length);
- 
 
-     // Create message if there is new line character
+    Uint8List buffer = Uint8List(data.length);
+
+    // Create message if there is new line character
     dataString = String.fromCharCodes(data);
     print(dataString);
     //int index = dataString.indexOf('x');
     int index = data.indexOf(120);
     print(index);
-        if (~index != 0) {
+    if (~index != 0) {
       setState(() {
         String myString = _messageBuffer + dataString.substring(0, index);
         _messageBuffer = dataString.substring(index);
         print(_messageBuffer);
         receivedData = myString.replaceAll('x', '');
         ham_count = receivedData.split(',')[0];
-        print( receivedData.split(','));
+        double_count = double.parse(ham_count);
+        print(receivedData.split(','));
         print(ham_count);
         //cpm_received.add(double.parse(ham_count));
         // cpm_received_time.add(TimeOfDay.now());
@@ -220,13 +230,13 @@ class _MyAppState extends State<MyApp> {
         print(ham_temp);
         print(ham_bat);
         battery_level = ((double.parse(ham_bat) % 1024) / 1024 * 100).round();
-        temp_level = ((double.parse(ham_temp) % 1024) / 1024 * 100).round();
+        temp_level =
+            ((double.parse(ham_temp) % 1024) / 1024 * 100).round(); //<>
         sound_enabled ? FlutterBeep.beep() : {};
+
         avaratar_glow_on = true;
         device_info_icons_on = 1;
         // Scaffold.of(_myapp_key.currentContext).showSnackBar(snackBar);
-
-        
       });
     } else {
       _messageBuffer = _messageBuffer + dataString;
@@ -251,6 +261,7 @@ class _MyAppState extends State<MyApp> {
     if (connection != null) {
       await waitWhile(() => connection.isConnected).then((value) => {
             setState(() {
+              my_device_connected = false;
               showDialog(
                 context: context,
                 child: new AlertDialog(
@@ -441,7 +452,9 @@ class _MyAppState extends State<MyApp> {
                   ),
                   AvatarGlow(
                     startDelay: Duration(milliseconds: 1000),
-                    glowColor: Colors.blueGrey,
+                    glowColor: double_count < 1000.0
+                        ? Colors.green
+                        : double_count < 1000000.0 ? Colors.yellow : Colors.red,
                     endRadius: 120.0,
                     duration: Duration(milliseconds: 1000),
                     repeat: true,
@@ -451,19 +464,41 @@ class _MyAppState extends State<MyApp> {
                       elevation: 8.0,
                       shape: CircleBorder(),
                       child: CircleAvatar(
-                        backgroundColor: Colors.blueGrey[200],
+                        backgroundColor: my_device_connected
+                            ? double_count < 10.0
+                                ? Colors.green
+                                : double_count < 10000.0
+                                    ? Colors.yellow[800]
+                                    : double_count < 1000000.0
+                                        ? Colors.orange[800]
+                                        : Colors.red
+                            : Colors.grey,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Text(
-                              'uSv/saat',
+                              double_count < 1000.0
+                                  ? '\u00B5Sv/saat'
+                                  : double_count < 1000000.0
+                                      ? 'mSv/saat'
+                                      : 'Sv/saat',
                               style:
                                   TextStyle(fontSize: 25, color: Colors.white),
                             ),
                             Text(
-                              ham_count,
-                              style:
-                                  TextStyle(fontSize: 45, color: Colors.white),
+                              double_count < 1000.0
+                                  ? double_count.toStringAsFixed(3)
+                                  : double_count < 1000000.0
+                                      ? (double_count / 1000.0)
+                                          .toStringAsFixed(3)
+                                      : (double_count / 1000000.0)
+                                          .toStringAsFixed(3),
+                              style: TextStyle(
+                                  fontSize:
+                                      double_count.toStringAsFixed(3).length < 6
+                                          ? 43
+                                          : 33,
+                                  color: Colors.white),
                             ),
                           ],
                         ),
@@ -512,8 +547,14 @@ class _MyAppState extends State<MyApp> {
                                 : sound_enabled = true,
                           },
                         ),
-                        IconButton(icon: Icon(Icons.save), onPressed: null),
-                        Text(ham_temp + " \u2103"),
+                        IconButton(
+                            icon: Icon(Icons.save),
+                            onPressed: connection != null
+                                ? connection.isConnected
+                                    ? () => _sendMessage('deneme')
+                                    : null
+                                : null),
+                        Text(temp_level.toString() + " \u2103"),
                       ],
                     ),
                   ),
@@ -528,6 +569,22 @@ class _MyAppState extends State<MyApp> {
 
   bool isDisconnecting = false;
 
+  void _sendMessage(String text) async {
+    text = text.trim();
+
+    if (text.length > 0) {
+      try {
+        connection.output.add(utf8.encode(text + "\n"));
+        await connection.output.allSent;
+        print(utf8.encode(text + "\r\n"));
+        setState(() {});
+      } catch (e) {
+        // Ignore error, but notify state
+        setState(() {});
+      }
+    }
+  }
+
   void _startChat(BuildContext context, BluetoothDevice server) {
     StreamController<Uint8List> streamController =
         new StreamController.broadcast();
@@ -541,6 +598,7 @@ class _MyAppState extends State<MyApp> {
         // my_func();
         connected_device = server.name;
         my_server_adress = server.address;
+        my_device_connected = true;
         showDialog(
             context: context,
             child: new AlertDialog(
@@ -575,7 +633,7 @@ class _MyAppState extends State<MyApp> {
         // If we except the disconnection, `onDone` should be fired as result.
         // If we didn't except this (no flag set), it means closing by remote.
         if (isDisconnecting) {
-          print('Bağlantı bu cihazdan koparıldı!');
+          print('Bağlantı koptu!');
         } else {
           print('Bağlantı uzaktan kapatıldı!');
         }
