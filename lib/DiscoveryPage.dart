@@ -70,8 +70,8 @@ class _DiscoveryPage extends State<DiscoveryPage> {
     return Scaffold(
       appBar: AppBar(
         title: isDiscovering
-            ? Text('Discovering devices')
-            : Text('Discovered devices'),
+            ? Text('Cihazları Tarıyor')
+            : Text('Cihazlar Bulundu'),
         actions: <Widget>[
           isDiscovering
               ? FittedBox(
@@ -95,23 +95,24 @@ class _DiscoveryPage extends State<DiscoveryPage> {
           return BluetoothDeviceListEntry(
             device: result.device,
             rssi: result.rssi,
-            onTap: () {
-              Navigator.of(context).pop(result.device);
-            },
-            onLongPress: () async {
+            // onTap: () {
+            //   Navigator.of(context).pop(result.device);
+            // },
+            onTap: () async {
               try {
                 bool bonded = false;
                 if (result.device.isBonded) {
-                  print('Unbonding from ${result.device.address}...');
+                  print('Eşleşme  sonlandırılıyor ${result.device.address}...');
                   await FlutterBluetoothSerial.instance
                       .removeDeviceBondWithAddress(result.device.address);
-                  print('Unbonding from ${result.device.address} has succed');
+                  print(
+                      '${result.device.address} cihaz ile olan eşleşme sonlandırıldı');
                 } else {
-                  print('Bonding with ${result.device.address}...');
+                  print('${result.device.address} ile eşleniyor...');
                   bonded = await FlutterBluetoothSerial.instance
                       .bondDeviceAtAddress(result.device.address);
                   print(
-                      'Bonding with ${result.device.address} has ${bonded ? 'succed' : 'failed'}.');
+                      'Eşleşme ${result.device.address} ${bonded ? 'succed' : 'failed'}.');
                 }
                 setState(() {
                   results[results.indexOf(result)] = BluetoothDiscoveryResult(
@@ -130,15 +131,16 @@ class _DiscoveryPage extends State<DiscoveryPage> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: const Text('Error occured while bonding'),
+                      title: const Text('Eşleşirken hata oluştu'),
                       content: Text("${ex.toString()}"),
                       actions: <Widget>[
                         new FlatButton(
-                          child: new Text("Close"),
+                          child: new Text("Kapat"),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
                         ),
+                        Divider(),
                       ],
                     );
                   },

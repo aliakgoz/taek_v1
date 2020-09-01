@@ -338,20 +338,20 @@ class _MyAppState extends State<MyApp> {
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   Container(
                     alignment: Alignment.bottomCenter,
-                    constraints: BoxConstraints(minHeight: 100, maxHeight: 200),
+                    // constraints: BoxConstraints(minHeight: 100, maxHeight: 200),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
-                        Text("RHTD",
+                        Text("\n\nNükleer Enerji Araştırma Enstitüsü",
                             style: TextStyle(
-                                fontSize: 45,
+                                fontSize: 35,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.deepOrange),
+                                color: Colors.indigo),
                             textAlign: TextAlign.center),
                         Text("Sintilatörlü Dozimetre Cihazı\n",
                             style:
