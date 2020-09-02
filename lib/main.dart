@@ -7,9 +7,13 @@ import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 //import 'package:flutter/services.dart';
 import 'package:flutter_basics_quiz_app/infopage.dart';
+import 'package:flutter_basics_quiz_app/archivepage.dart';
 import 'package:flutter_beep/flutter_beep.dart';
 import 'package:battery_indicator/battery_indicator.dart';
 // import 'package:charts_flutter/flutter.dart' as charts;
+// import 'package:flutter_audio_player/flutter_audio_player.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import './SelectBondedDevicePage.dart';
@@ -98,6 +102,9 @@ var completer = Completer();
 Color _color = Colors.blue;
 
 var my_conn_notifier;
+DateTime now = DateTime.now();
+var filename = '';
+var logarchivelist;
 
 var batteryIndicator = new BatteryIndicator(
   style: BatteryIndicatorStyle.values[_styleIndex],
@@ -116,6 +123,8 @@ class _MyAppState extends State<MyApp> {
   String _address = "...";
   String _name = "...";
   String _messageBuffer = '';
+  String my_log = "";
+  // var sink = new File('file.txt').openWrite();
 
   Timer _discoverableTimeoutTimer;
   int _discoverableTimeoutSecondsLeft = 0;
@@ -127,6 +136,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+
+    filename =
+        'TAEK_v1_log_${now.year.toString()}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
 
     // soundId = await rootBundle.load("sounds/bip_geiger1.wav").then((ByteData soundData) {
     //           return pool.load(soundData);
@@ -174,6 +186,62 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  Future<String> get _localPath async {
+    final directory = await getTemporaryDirectory();
+    // final directory = await getApplicationDocumentsDirectory();
+    logarchivelist = [];
+    directory.list().forEach((element) {
+      logarchivelist.add(element.toString());
+    });
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+
+    print('$path');
+
+    final file = File('$path/$filename.txt');
+
+    final doesExist = await file.exists();
+
+    if (!doesExist) await file.create();
+
+    return file;
+  }
+
+  Future<File> writeCounts(String cpm_log) async {
+    final file = await _localFile;
+
+    // Write the file.
+    return file.writeAsString('$cpm_log', mode: FileMode.append);
+  }
+
+  // /data/user/0/com.example.flutter_basics_quiz_app/app_flutter
+
+  Future<void> send() async {
+    final path = await _localPath;
+    final Email email = Email(
+      body:
+          'TAEK01 adlı cihazın ${now.year.toString()}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} tarihli log kaydı ektedir.',
+      subject: 'TAEK01 LOG KAYDI',
+      recipients: [],
+      attachmentPaths: ['$path/$filename.txt'],
+      isHTML: false,
+    );
+
+    String platformResponse;
+
+    try {
+      await FlutterEmailSender.send(email);
+      platformResponse = 'success';
+    } catch (error) {
+      platformResponse = error.toString();
+    }
+
+    if (!mounted) return;
+  }
+
   void _onDataReceived(Uint8List data) {
     print('Data:');
     print(data);
@@ -195,6 +263,7 @@ class _MyAppState extends State<MyApp> {
         receivedData = myString.replaceAll('x', '');
         ham_count = receivedData.split(',')[0];
         double_count = double.parse(ham_count);
+
         print(receivedData.split(','));
         print(ham_count);
         //cpm_received.add(double.parse(ham_count));
@@ -209,7 +278,66 @@ class _MyAppState extends State<MyApp> {
         battery_level = ((double.parse(ham_bat) % 1024) / 1024 * 100).round();
         temp_level =
             ((double.parse(ham_temp) % 1024) / 1024 * 100).round(); //<>
-        sound_enabled ? FlutterBeep.beep() : {};
+        my_log = my_log +
+            '${new DateTime.now()} : CPM: ' +
+            double_count.toStringAsFixed(3) +
+            ' BATTERY LEVEL: ' +
+            battery_level.toString() +
+            ' TEMP: ' +
+            temp_level.toString() +
+            '\n';
+        writeCounts('${new DateTime.now()} : CPM: ' +
+            double_count.toStringAsFixed(3) +
+            ' BATTERY LEVEL: ' +
+            battery_level.toString() +
+            ' TEMP: ' +
+            temp_level.toString() +
+            '\n');
+        sink.write('  ${new DateTime.now()} : ' +
+            double_count.toStringAsFixed(3) +
+            ' ' +
+            battery_level.toString() +
+            ' ' +
+            temp_level.toString() +
+            '<br>\n');
+
+        sound_enabled
+            ? double_count < 100.0
+                ? FlutterBeep.beep()
+                : double_count < 1000.0
+                    ? {
+                        FlutterBeep.beep()
+                            .then((value) => FlutterBeep.beep())
+                            .then((value) => FlutterBeep.beep()),
+                      }
+                    : double_count < 2000.0
+                        ? {
+                            FlutterBeep.beep()
+                                .then((value) => FlutterBeep.beep())
+                                .then((value) => FlutterBeep.beep())
+                                .then((value) => FlutterBeep.beep())
+                                .then((value) => FlutterBeep.beep())
+                                .then((value) => FlutterBeep.beep()),
+                          }
+                        : double_count < 10000.0
+                            ? {
+                                FlutterBeep.beep()
+                                    .then((value) => FlutterBeep.beep())
+                                    .then((value) => FlutterBeep.beep())
+                                    .then((value) => FlutterBeep.beep())
+                                    .then((value) => FlutterBeep.beep())
+                                    .then((value) => FlutterBeep.beep())
+                                    .then((value) => FlutterBeep.beep())
+                                    .then((value) => FlutterBeep.beep())
+                                    .then((value) => FlutterBeep.beep())
+                                    .then((value) => FlutterBeep.beep())
+                                    .then((value) => FlutterBeep.beep())
+                                    .then((value) => FlutterBeep.beep()),
+                              }
+                            : {
+                                FlutterBeep.playSysSound(30),
+                              }
+            : {};
 
         avaratar_glow_on = true;
         device_info_icons_on = 1;
@@ -239,6 +367,7 @@ class _MyAppState extends State<MyApp> {
       await waitWhile(() => connection.isConnected).then((value) => {
             setState(() {
               my_device_connected = false;
+              sink.close();
               showDialog(
                 context: context,
                 child: new AlertDialog(
@@ -310,6 +439,18 @@ class _MyAppState extends State<MyApp> {
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => MainPage()));
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.archive,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Myarchivepage(logarchivelist)));
               },
             ),
             IconButton(
@@ -525,13 +666,27 @@ class _MyAppState extends State<MyApp> {
                           },
                         ),
                         IconButton(
-                            icon: Icon(Icons.save),
-                            onPressed: connection != null
-                                ? connection.isConnected
-                                    ? () => _sendMessage('deneme')
-                                    : null
-                                : null),
+                          icon: Icon(Icons.save),
+                          onPressed: send,
+                        ),
+                        // onPressed: connection != null
+                        //     ? connection.isConnected
+                        //         ? () => _sendMessage('deneme')
+                        //         : null
+                        //     : null),
                         Text(temp_level.toString() + " \u2103"),
+                        IconButton(
+                            icon: Icon(Icons.do_not_disturb_on),
+                            color: connection != null
+                                ? connection.isConnected
+                                    ? Colors.red
+                                    : Colors.grey
+                                : Colors.red,
+                            onPressed: connection != null
+                                ? () => {
+                                      connection.close(),
+                                    }
+                                : null),
                       ],
                     ),
                   ),
@@ -562,6 +717,9 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  var file;
+  var sink;
+
   void _startChat(BuildContext context, BluetoothDevice server) {
     StreamController<Uint8List> streamController =
         new StreamController.broadcast();
@@ -576,6 +734,8 @@ class _MyAppState extends State<MyApp> {
         connected_device = server.name;
         my_server_adress = server.address;
         my_device_connected = true;
+        file = new File('logs/file.txt');
+        sink = file.openWrite();
         showDialog(
             context: context,
             child: new AlertDialog(

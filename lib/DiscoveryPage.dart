@@ -140,7 +140,6 @@ class _DiscoveryPage extends State<DiscoveryPage> {
                             Navigator.of(context).pop();
                           },
                         ),
-                        Divider(),
                       ],
                     );
                   },
