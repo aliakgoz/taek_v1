@@ -56,6 +56,9 @@ class _MyarchivepageState extends State<Myarchivepage> {
         ),
         body: ListView(
           children: widget.logarchivelist.map<Widget>((w) {
+            var bfile =
+                File(w.toString().replaceAll("File: ", "").replaceAll("'", ""));
+            var filesize = (bfile.lengthSync() / 1024).toStringAsFixed(0);
             return ExpansionTile(
               title: Row(children: <Widget>[
                 IconButton(
@@ -73,6 +76,7 @@ class _MyarchivepageState extends State<Myarchivepage> {
                 Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
+                      Text(filesize + " KB"),
                       // Text(w
                       //     .toString()
                       //     .replaceAll("File: ", "")

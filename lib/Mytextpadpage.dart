@@ -44,10 +44,10 @@ class _MytextpadpageState extends State<Mytextpadpage> {
           builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
-                return Text('Loading....');
+                return Text('Yükleniyor....');
               default:
                 if (snapshot.hasError)
-                  return Text('Error: ${snapshot.error}');
+                  return Text('Hata: ${snapshot.error}');
                 else
                   return ListView(
                     children:
