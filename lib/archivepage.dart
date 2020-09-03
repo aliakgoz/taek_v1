@@ -5,6 +5,8 @@ import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
+import './Mytextpadpage.dart';
+
 class Myarchivepage extends StatefulWidget {
   var logarchivelist;
 
@@ -63,48 +65,62 @@ class _MyarchivepageState extends State<Myarchivepage> {
                 Flexible(
                   child: Container(
                       padding: const EdgeInsets.all(10.0),
-                      child: Text(w.toString().split("/").last)),
+                      child: Text(
+                          w.toString().replaceAll("'", "").split("/").last)),
                 ),
               ]),
               children: <Widget>[
-                Row(mainAxisAlignment: MainAxisAlignment.end, children: <
-                    Widget>[
-                  //Text(w.toString()),
-                  IconButton(
-                      icon: Icon(Icons.share),
-                      onPressed: () async {
-                        // final file = File(w
-                        //     .toString()
-                        //     .replaceAll("'File:'", "")
-                        //     .replaceAll("'", ""));
-                        final Email email = Email(
-                          body: 'TAEK01 adlı cihazın log kaydı ektedir.',
-                          subject: 'TAEK01 LOG KAYDI',
-                          recipients: [],
-                          attachmentPaths: [
-                            w
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      // Text(w
+                      //     .toString()
+                      //     .replaceAll("File: ", "")
+                      //     .replaceAll("'", "")),
+                      IconButton(
+                          icon: Icon(Icons.share),
+                          onPressed: () async {
+                            final Email email = Email(
+                              body: 'TAEK01 adlı cihazın log kaydı ektedir.',
+                              subject: 'TAEK01 LOG KAYDI',
+                              recipients: [],
+                              attachmentPaths: [
+                                w
+                                    .toString()
+                                    .replaceAll("File: ", "")
+                                    .replaceAll("'", "")
+                              ],
+                              isHTML: false,
+                            );
+
+                            String platformResponse;
+
+                            try {
+                              await FlutterEmailSender.send(email);
+                              platformResponse = 'success';
+                            } catch (error) {
+                              platformResponse = error.toString();
+                            }
+
+                            if (!mounted) return;
+                          }),
+                      IconButton(
+                          icon: Icon(Icons.table_chart),
+                          onPressed: () {
+                            final file = File(w
                                 .toString()
-                                .replaceAll("'File:'", "")
-                                .replaceAll("'", "")
-                          ],
-                          isHTML: false,
-                        );
-
-                        String platformResponse;
-
-                        try {
-                          await FlutterEmailSender.send(email);
-                          platformResponse = 'success';
-                        } catch (error) {
-                          platformResponse = error.toString();
-                        }
-
-                        if (!mounted) return;
-                      }),
-                  IconButton(icon: Icon(Icons.table_chart), onPressed: null),
-                  IconButton(icon: Icon(Icons.show_chart), onPressed: null),
-                  IconButton(icon: Icon(Icons.delete_forever), onPressed: null),
-                ]),
+                                .replaceAll("File: ", "")
+                                .replaceAll("'", ""));
+                            // file.readAsLines().then((value) => )
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Mytextpadpage(file)));
+                          }),
+                      IconButton(icon: Icon(Icons.show_chart), onPressed: null),
+                      IconButton(
+                          icon: Icon(Icons.delete_forever), onPressed: null),
+                    ]),
               ],
             );
           }).toList(),
