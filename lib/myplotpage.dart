@@ -23,13 +23,6 @@ class _MyplotpageState extends State<Myplotpage> {
 
   Future<String> get _readFile async {
     myfile = await widget.file.readAsLines();
-    // print(myfile[0].split(' ')[4]);
-    // print(
-    //     DateTime.parse(myfile[3].split(' ')[0] + ' ' + myfile[3].split(' ')[1])
-    //         .difference(DateTime.parse(
-    //             myfile[2].split(' ')[0] + ' ' + myfile[2].split(' ')[1]))
-    //         .inSeconds
-    //         .toString());
 
     for (var i = 0; i < myfile.length; i++) {
       try {

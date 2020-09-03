@@ -20,7 +20,7 @@ class _Message {
   _Message(this.whom, this.text);
 }
 
-StreamController<Uint8List> streamController = new StreamController.broadcast();  
+StreamController<Uint8List> streamController = new StreamController.broadcast();
 
 class _AnaSayfa extends State<AnaSayfa> {
   static final clientID = 0;
@@ -39,8 +39,6 @@ class _AnaSayfa extends State<AnaSayfa> {
 
   bool isDisconnecting = false;
 
-  
-
   @override
   void initState() {
     super.initState();
@@ -53,14 +51,8 @@ class _AnaSayfa extends State<AnaSayfa> {
         isDisconnecting = false;
       });
       streamController.addStream(connection.input);
-      
+
       streamController.stream.listen(_onDataReceived).onDone(() {
-        // Example: Detect which side closed the connection
-        // There should be `isDisconnecting` flag to show are we are (locally)
-        // in middle of disconnecting process, should be set before calling
-        // `dispose`, `finish` or `close`, which all causes to disconnect.
-        // If we except the disconnection, `onDone` should be fired as result.
-        // If we didn't except this (no flag set), it means closing by remote.
         if (isDisconnecting) {
           print('Disconnecting locally!');
         } else {
@@ -89,8 +81,7 @@ class _AnaSayfa extends State<AnaSayfa> {
   }
 
   @override
-  Widget build(BuildContext context) { 
-
+  Widget build(BuildContext context) {
     return Text(receivedData);
   }
 
@@ -125,11 +116,8 @@ class _AnaSayfa extends State<AnaSayfa> {
     if (~index != 0) {
       setState(() {
         receivedData = dataString;
-        
       });
-    } else {
-      
-    }
+    } else {}
   }
 
   void _sendMessage(String text) async {

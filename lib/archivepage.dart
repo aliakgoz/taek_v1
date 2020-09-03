@@ -1,8 +1,6 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
-import 'package:path_provider/path_provider.dart';
+
 import 'dart:io';
 
 import './Mytextpadpage.dart';
@@ -57,10 +55,6 @@ class _MyarchivepageState extends State<Myarchivepage> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
                       Text(filesize + " KB"),
-                      // Text(w
-                      //     .toString()
-                      //     .replaceAll("File: ", "")
-                      //     .replaceAll("'", "")),
                       IconButton(
                           icon: Icon(Icons.share),
                           onPressed: () async {
@@ -95,7 +89,7 @@ class _MyarchivepageState extends State<Myarchivepage> {
                                 .toString()
                                 .replaceAll("File: ", "")
                                 .replaceAll("'", ""));
-                            // file.readAsLines().then((value) => )
+
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -108,7 +102,7 @@ class _MyarchivepageState extends State<Myarchivepage> {
                                 .toString()
                                 .replaceAll("File: ", "")
                                 .replaceAll("'", ""));
-                            // file.readAsLines().then((value) => )
+
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
