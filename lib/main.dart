@@ -1,42 +1,28 @@
 import 'dart:async';
 import 'dart:convert';
-// import 'dart:html';
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter/services.dart';
-import './infopage.dart';
-import './archivepage.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_beep/flutter_beep.dart';
 import 'package:battery_indicator/battery_indicator.dart';
-// import 'package:charts_flutter/flutter.dart' as charts;
-// import 'package:flutter_audio_player/flutter_audio_player.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import './infopage.dart';
+import './archivepage.dart';
 import './SelectBondedDevicePage.dart';
 import './BackgroundCollectingTask.dart';
 import './MainPage.dart';
 
-// void main() {
-//   runApp(MyApp());
-// }
-// same with the line below
 void main() {
   runApp(MaterialApp(
     home: MyApp(), // becomes the route named '/'
-    // routes: <String, WidgetBuilder>{
-    //   '/blue': (BuildContext context) => BluetoothPage(),
-    //   // '/b': (BuildContext context) => MyPage(title: 'page B'),
-    //   // '/c': (BuildContext context) => MyPage(title: 'page C'),
-    // },
   ));
 }
 
-// Navigator.pushNamed(context, '/b');
-// extends uses another (prebuilt) class blueprint and if you want you can add properties to it.
 class MyApp extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -62,7 +48,6 @@ String dataString = '';
 double double_count = 0;
 
 var my_duration = Duration(milliseconds: 2500);
-
 var _styleIndex = 0;
 
 // List<TimeSeriesSales> chart_data_list = new List();
@@ -75,32 +60,15 @@ var _showPercentNum = true;
 var connected_device = '';
 var avaratar_glow_on = false;
 double device_info_icons_on = 1;
-// var title_font = GoogleFonts.jomhuria(
-//   textStyle: TextStyle(color: Colors.indigo, letterSpacing: .5, fontSize: 90),
-// );
-
 var my_bl_state = BluetoothBondState.fromUnderlyingValue(10);
-
 var my_server_adress;
 var _size = 18.0;
-
 var _ratio = 3.0;
-
-// var soundId;
-
-// List<double> cpm_received = List<double>();
-
-// List<tim> cpm_received_time;
-
 var battery_level = 0;
 var temp_level = 0;
-
 var bl_icon_ilk = Icons.bluetooth;
-
 var completer = Completer();
-
 Color _color = Colors.blue;
-
 var my_conn_notifier;
 DateTime now = DateTime.now();
 var filename = '';
@@ -142,10 +110,6 @@ class _MyAppState extends State<MyApp> {
     filename =
         'TAEK_v1_log_${now.year.toString()}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
 
-    // soundId = await rootBundle.load("sounds/bip_geiger1.wav").then((ByteData soundData) {
-    //           return pool.load(soundData);
-    //         });
-    // Get current state
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
         _bluetoothState = state;
@@ -268,11 +232,7 @@ class _MyAppState extends State<MyApp> {
 
         print(receivedData.split(','));
         print(ham_count);
-        //cpm_received.add(double.parse(ham_count));
-        // cpm_received_time.add(TimeOfDay.now());
 
-        // chart_data_list
-        //     .add(TimeSeriesSales(DateTime.now(), int.parse(ham_count)));
         ham_temp = receivedData.split(',')[1];
         ham_bat = receivedData.split(',')[2];
         print(ham_temp);
@@ -390,36 +350,6 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  // void my_chart() async {
-  //   var series = ChartSeries([
-  //     'Jan',
-  //     'Feb',
-  //     'Mar'
-  //   ], {
-  //     'A': [10, 20, 5],
-  //     'B': [15, 25, 55],
-  //     'C': [100, 130, 140]
-  //   });
-
-  //   series.title = 'Chart Example';
-  //   series.xTitle = 'Months';
-  //   series.yTitle = 'Count';
-  //   series.options.fillLines = true;
-  //   series.options.straightLines = true;
-
-  //   //var charEngine = ChartEngineChartJS() ;
-  //   var charEngine = ChartEngineApexCharts();
-  //   await charEngine.load();
-  //   charEngine.renderLineChart(querySelector('#output'), series);
-  // }
-  // @override
-  // void dispose() {
-  //   FlutterBluetoothSerial.instance.setPairingRequestHandler(null);
-  //   _collectingTask?.dispose();
-  //   _discoverableTimeoutTimer?.cancel();
-  //   super.dispose();
-  // }
-
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
@@ -503,27 +433,8 @@ class _MyAppState extends State<MyApp> {
                       ],
                     ),
                   ),
-                  // Text(
-                  //     "\n Radyasyon Ölçüm Cihazı \n Bağlantı ve Analiz Programı",
-                  //     style: TextStyle(
-                  //         color: Colors.grey[800],
-                  //         fontWeight: FontWeight.bold,
-                  //         fontSize: 18),
-                  //     textAlign: TextAlign.center),
-                  // Text("\n Dedektör 1 bağlandı. \n",
-                  //     style: TextStyle(
-                  //         color: Colors.blueGrey[800],
-                  //         fontWeight: FontWeight.bold,
-                  //         fontSize: 20),
-                  //     textAlign: TextAlign.center),
                   RaisedButton(
                     onPressed: () async {
-                      // if (connection == null) {
-                      // } else {
-                      //   isDisconnecting = true;
-                      //   connection.dispose();
-                      //   connection = null;
-                      // }
                       final BluetoothDevice selectedDevice =
                           await Navigator.of(context).push(
                         MaterialPageRoute(
@@ -671,11 +582,6 @@ class _MyAppState extends State<MyApp> {
                           icon: Icon(Icons.save),
                           onPressed: send,
                         ),
-                        // onPressed: connection != null
-                        //     ? connection.isConnected
-                        //         ? () => _sendMessage('deneme')
-                        //         : null
-                        //     : null),
                         Text(temp_level.toString() + " \u2103"),
                         IconButton(
                             icon: Icon(Icons.do_not_disturb_on),
@@ -692,8 +598,6 @@ class _MyAppState extends State<MyApp> {
                       ],
                     ),
                   ),
-
-                  // my_chart,
                 ],
               ),
             )),
@@ -755,22 +659,6 @@ class _MyAppState extends State<MyApp> {
       my_func();
 
       streamController.stream.listen(_onDataReceived).onDone(() {
-        // my_conn_notifier = ValueNotifier(connection.isConnected == true);
-        // ValueListenableBuilder(
-        //   valueListenable: my_conn_notifier,
-        //   builder: (context, value, child) {
-        //     print(value);
-        //     if (!connection.isConnected) {
-        //       setState(() {});
-        //     }
-        //   },
-        // );
-        // Example: Detect which side closed the connection
-        // There should be `isDisconnecting` flag to show are we are (locally)
-        // in middle of disconnecting process, should be set before calling
-        // `dispose`, `finish` or `close`, which all causes to disconnect.
-        // If we except the disconnection, `onDone` should be fired as result.
-        // If we didn't except this (no flag set), it means closing by remote.
         if (isDisconnecting) {
           print('Bağlantı koptu!');
         } else {
@@ -780,49 +668,9 @@ class _MyAppState extends State<MyApp> {
           setState(() {});
         }
       });
-
-      // Future.wait([completer.future, streamController.stream.listen])
-      //     .then((value) => {
-      //           _visible = true,
-      //           status_text = 'Bağlantı Koptu',
-      //         });
     }).catchError((error) {
-      print(
-          'Cannot connect, exception occured***************************************************');
+      print('Cannot connect, exception occured*********');
       print(error);
     });
   }
 }
-
-// class my_chart extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return new charts.TimeSeriesChart(
-//       [
-//         new charts.Series<TimeSeriesSales, DateTime>(
-//           id: 'Sales',
-//           colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-//           domainFn: (TimeSeriesSales sales, _) => sales.time,
-//           measureFn: (TimeSeriesSales sales, _) => sales.sales,
-//           data: chart_data_list != null
-//               ? chart_data_list
-//               : [
-//                   new TimeSeriesSales(new DateTime(2017, 9, 1), 5),
-//                   new TimeSeriesSales(new DateTime(2017, 9, 2), 10),
-//                 ],
-//         )
-//       ],
-//       animate: false,
-//       // Set the default renderer to a bar renderer.
-//       // This can also be one of the custom renderers of the time series chart.
-//       defaultRenderer: new charts.BarRendererConfig<DateTime>(),
-//       // It is recommended that default interactions be turned off if using bar
-//       // renderer, because the line point highlighter is the default for time
-//       // series chart.
-//       defaultInteractions: false,
-//       // If default interactions were removed, optionally add select nearest
-//       // and the domain highlighter that are typical for bar charts.
-//       behaviors: [new charts.SelectNearest(), new charts.DomainHighlighter()],
-//     );
-//   }
-// }

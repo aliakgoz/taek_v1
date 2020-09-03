@@ -23,27 +23,6 @@ class Myarchivepage extends StatefulWidget {
 }
 
 class _MyarchivepageState extends State<Myarchivepage> {
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   setState(() {});
-  // }
-
-  // Future<File> get _localFile async {
-  //   final path = await _localPath;
-
-  //   print('$path');
-
-  //   final file = File('$path/$filename.txt');
-
-  //   final doesExist = await file.exists();
-
-  //   if (!doesExist) await file.create();
-
-  //   return file;
-  // }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -142,16 +121,6 @@ class _MyarchivepageState extends State<Myarchivepage> {
             );
           }).toList(),
         ),
-
-        // Text(
-        //   "\nİletişim Bilgileri",
-        //   textAlign: TextAlign.center,
-        //   style: TextStyle(
-        //       fontSize: 25,
-        //       fontWeight: FontWeight.normal,
-        //       color: Colors.black),
-        // ),
-        // Divider(),
       ),
     );
   }
