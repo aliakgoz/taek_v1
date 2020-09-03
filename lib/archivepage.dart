@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 import './Mytextpadpage.dart';
+import './Myplotpage.dart';
 
 class Myarchivepage extends StatefulWidget {
   var logarchivelist;
@@ -121,7 +122,19 @@ class _MyarchivepageState extends State<Myarchivepage> {
                                 MaterialPageRoute(
                                     builder: (context) => Mytextpadpage(file)));
                           }),
-                      IconButton(icon: Icon(Icons.show_chart), onPressed: null),
+                      IconButton(
+                          icon: Icon(Icons.show_chart),
+                          onPressed: () {
+                            final file = File(w
+                                .toString()
+                                .replaceAll("File: ", "")
+                                .replaceAll("'", ""));
+                            // file.readAsLines().then((value) => )
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Myplotpage(file)));
+                          }),
                       IconButton(
                           icon: Icon(Icons.delete_forever), onPressed: null),
                     ]),

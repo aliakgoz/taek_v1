@@ -39,6 +39,7 @@ dependencies:
   line_awesome_flutter: ^1.0.1
   flutter_email_sender: ^3.0.1
   path_provider: ^1.6.14
+  flutter_plot: ^0.0.4
 
 
  
