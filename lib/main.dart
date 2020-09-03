@@ -136,7 +136,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-
+    () async {
+      await _localPath;
+    }();
     filename =
         'TAEK_v1_log_${now.year.toString()}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
 

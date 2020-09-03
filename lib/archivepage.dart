@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
@@ -26,6 +27,20 @@ class _MyarchivepageState extends State<Myarchivepage> {
   //   setState(() {});
   // }
 
+  // Future<File> get _localFile async {
+  //   final path = await _localPath;
+
+  //   print('$path');
+
+  //   final file = File('$path/$filename.txt');
+
+  //   final doesExist = await file.exists();
+
+  //   if (!doesExist) await file.create();
+
+  //   return file;
+  // }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -37,35 +52,73 @@ class _MyarchivepageState extends State<Myarchivepage> {
           ),
           title: Text('Log Arşivi'),
         ),
-        body: RefreshIndicator(
-          onRefresh: () {
-            return;
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: widget.logarchivelist.map<Widget>((w) {
-                  return RaisedButton(
-                    child: Text(w.toString().split("/").last),
-                    onPressed: () => {},
-                  );
-                }).toList(),
-              ),
-              Divider(),
-              // Text(
-              //   "\nİletişim Bilgileri",
-              //   textAlign: TextAlign.center,
-              //   style: TextStyle(
-              //       fontSize: 25,
-              //       fontWeight: FontWeight.normal,
-              //       color: Colors.black),
-              // ),
-              // Divider(),
-            ],
-          ),
+        body: ListView(
+          children: widget.logarchivelist.map<Widget>((w) {
+            return ExpansionTile(
+              title: Row(children: <Widget>[
+                IconButton(
+                    icon: Icon(Icons.album),
+                    color: Colors.blueAccent,
+                    onPressed: () => {}),
+                Flexible(
+                  child: Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(w.toString().split("/").last)),
+                ),
+              ]),
+              children: <Widget>[
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: <
+                    Widget>[
+                  //Text(w.toString()),
+                  IconButton(
+                      icon: Icon(Icons.share),
+                      onPressed: () async {
+                        // final file = File(w
+                        //     .toString()
+                        //     .replaceAll("'File:'", "")
+                        //     .replaceAll("'", ""));
+                        final Email email = Email(
+                          body: 'TAEK01 adlı cihazın log kaydı ektedir.',
+                          subject: 'TAEK01 LOG KAYDI',
+                          recipients: [],
+                          attachmentPaths: [
+                            w
+                                .toString()
+                                .replaceAll("'File:'", "")
+                                .replaceAll("'", "")
+                          ],
+                          isHTML: false,
+                        );
+
+                        String platformResponse;
+
+                        try {
+                          await FlutterEmailSender.send(email);
+                          platformResponse = 'success';
+                        } catch (error) {
+                          platformResponse = error.toString();
+                        }
+
+                        if (!mounted) return;
+                      }),
+                  IconButton(icon: Icon(Icons.table_chart), onPressed: null),
+                  IconButton(icon: Icon(Icons.show_chart), onPressed: null),
+                  IconButton(icon: Icon(Icons.delete_forever), onPressed: null),
+                ]),
+              ],
+            );
+          }).toList(),
         ),
+
+        // Text(
+        //   "\nİletişim Bilgileri",
+        //   textAlign: TextAlign.center,
+        //   style: TextStyle(
+        //       fontSize: 25,
+        //       fontWeight: FontWeight.normal,
+        //       color: Colors.black),
+        // ),
+        // Divider(),
       ),
     );
   }
