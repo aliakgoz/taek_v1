@@ -85,15 +85,16 @@ class _MyplotpageState extends State<Myplotpage> {
                             ),
                             new Container(
                               child: new Plot(
-                                height: 200.0,
+                                height: 1000.0,
                                 data: data,
                                 gridSize: new Offset(2.0, 2.0),
                                 style: new PlotStyle(
                                   // pointRadius: 3.0,
-                                  // outlineRadius: 1.0,
-                                  // primary: Colors.white,
-                                  // secondary: Colors.orange,
+                                  outlineRadius: 1.0,
+                                  primary: Colors.white,
+                                  secondary: Colors.red,
                                   trace: true,
+                                  showCoordinates: false,
                                   textStyle: new TextStyle(
                                     fontSize: 8.0,
                                     color: Colors.blueGrey,
@@ -101,7 +102,7 @@ class _MyplotpageState extends State<Myplotpage> {
                                   axis: Colors.blueGrey[600],
                                 ),
                                 padding: const EdgeInsets.fromLTRB(
-                                    40.0, 12.0, 12.0, 40.0),
+                                    20.0, 12.0, 12.0, 20.0),
                                 yTitle: 'Zaman (s)',
                                 xTitle: 'CPM',
                               ),
