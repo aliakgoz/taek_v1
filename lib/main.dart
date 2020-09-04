@@ -269,32 +269,31 @@ class _MyAppState extends State<MyApp> {
                 ? FlutterBeep.beep()
                 : double_count < 1000.0
                     ? {
-                        FlutterBeep.beep()
-                            .then((value) => FlutterBeep.beep())
-                            .then((value) => FlutterBeep.beep()),
+                        FlutterBeep.beep().then((value) => FlutterBeep.beep()),
+                        // .then((value) => FlutterBeep.beep()),
                       }
                     : double_count < 2000.0
                         ? {
                             FlutterBeep.beep()
-                                .then((value) => FlutterBeep.beep())
-                                .then((value) => FlutterBeep.beep())
-                                .then((value) => FlutterBeep.beep())
-                                .then((value) => FlutterBeep.beep())
+                                // .then((value) => FlutterBeep.beep())
+                                // .then((value) => FlutterBeep.beep())
+                                // .then((value) => FlutterBeep.beep())
+                                // .then((value) => FlutterBeep.beep())
                                 .then((value) => FlutterBeep.beep()),
                           }
                         : double_count < 10000.0
                             ? {
                                 FlutterBeep.beep()
-                                    .then((value) => FlutterBeep.beep())
-                                    .then((value) => FlutterBeep.beep())
-                                    .then((value) => FlutterBeep.beep())
-                                    .then((value) => FlutterBeep.beep())
-                                    .then((value) => FlutterBeep.beep())
-                                    .then((value) => FlutterBeep.beep())
-                                    .then((value) => FlutterBeep.beep())
-                                    .then((value) => FlutterBeep.beep())
-                                    .then((value) => FlutterBeep.beep())
-                                    .then((value) => FlutterBeep.beep())
+                                    // .then((value) => FlutterBeep.beep())
+                                    // .then((value) => FlutterBeep.beep())
+                                    // .then((value) => FlutterBeep.beep())
+                                    // .then((value) => FlutterBeep.beep())
+                                    // .then((value) => FlutterBeep.beep())
+                                    // .then((value) => FlutterBeep.beep())
+                                    // .then((value) => FlutterBeep.beep())
+                                    // .then((value) => FlutterBeep.beep())
+                                    // .then((value) => FlutterBeep.beep())
+                                    // .then((value) => FlutterBeep.beep())
                                     .then((value) => FlutterBeep.beep()),
                               }
                             : {
