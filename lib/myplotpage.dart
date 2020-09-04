@@ -78,7 +78,8 @@ class _MyplotpageState extends State<Myplotpage> {
                             ),
                             new Container(
                               child: new Plot(
-                                height: 1000.0,
+                                height:
+                                    double.parse((data.length * 5).toString()),
                                 data: data,
                                 gridSize: new Offset(2.0, 2.0),
                                 style: new PlotStyle(
