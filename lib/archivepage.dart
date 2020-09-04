@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'dart:io';
 
@@ -109,7 +111,54 @@ class _MyarchivepageState extends State<Myarchivepage> {
                                     builder: (context) => Myplotpage(file)));
                           }),
                       IconButton(
-                          icon: Icon(Icons.delete_forever), onPressed: null),
+                          icon: Icon(Icons.delete_forever),
+                          color: Colors.red[900],
+                          onPressed: () {
+                            showCupertinoDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    new CupertinoAlertDialog(
+                                      title: new Text("Uyarı"),
+                                      content: new Text(
+                                          "Dosyayı silmek istediğinize emin misiniz?"),
+                                      actions: <Widget>[
+                                        CupertinoDialogAction(
+                                          isDefaultAction: true,
+                                          child: Text("Evet"),
+                                          onPressed: () {
+                                            final file = File(w
+                                                .toString()
+                                                .replaceAll("File: ", "")
+                                                .replaceAll("'", ""));
+                                            try {
+                                              file.delete();
+                                              // Navigator.pop(context);
+                                            } finally {
+                                              Navigator.pop(context);
+                                              setState(() async {
+                                                final directory =
+                                                    await getTemporaryDirectory();
+                                                // final directory = await getApplicationDocumentsDirectory();
+                                                widget.logarchivelist = [];
+                                                directory
+                                                    .list()
+                                                    .forEach((element) {
+                                                  widget.logarchivelist
+                                                      .add(element.toString());
+                                                });
+                                                setState(() {});
+                                              });
+                                            }
+                                          },
+                                        ),
+                                        CupertinoDialogAction(
+                                          child: Text("Hayır"),
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                        )
+                                      ],
+                                    ));
+                          }),
                     ]),
               ],
             );

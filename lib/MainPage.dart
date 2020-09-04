@@ -10,8 +10,6 @@ import './ChatPage.dart';
 import './BackgroundCollectingTask.dart';
 import './BackgroundCollectedPage.dart';
 
-import './AnaSayfa2.dart';
-
 // import './helpers/LineChart.dart';
 
 class MainPage extends StatefulWidget {

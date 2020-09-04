@@ -587,9 +587,9 @@ class _MyAppState extends State<MyApp> {
                             icon: Icon(Icons.do_not_disturb_on),
                             color: connection != null
                                 ? connection.isConnected
-                                    ? Colors.red
+                                    ? Colors.red[900]
                                     : Colors.grey
-                                : Colors.red,
+                                : Colors.red[900],
                             onPressed: connection != null
                                 ? () => {
                                       connection.close(),
