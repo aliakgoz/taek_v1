@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_beep/flutter_beep.dart';
@@ -330,20 +331,37 @@ class _MyAppState extends State<MyApp> {
             setState(() {
               my_device_connected = false;
               sink.close();
-              showDialog(
+
+              showCupertinoDialog(
                 context: context,
-                child: new AlertDialog(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(80.0)),
-                  // title: new Text("My Super title"),
-                  content: new Text(
-                    connected_device + ' bağlantısı koptu'
-                    // + TimeOfDay.now().toString()
-                    ,
-                    textAlign: TextAlign.center,
-                  ),
+                builder: (BuildContext context) => new CupertinoAlertDialog(
+                  title: new Text("Bağlantı Bilgisi"),
+                  content: new Text(connected_device + ' bağlantısı koptu.'),
+                  actions: <Widget>[
+                    CupertinoDialogAction(
+                        isDefaultAction: true,
+                        child: Text("Tamam"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        }),
+                  ],
                 ),
               );
+
+              // showDialog(
+              //   context: context,
+              //   child: new AlertDialog(
+              //     shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(80.0)),
+              //     // title: new Text("My Super title"),
+              //     content: new Text(
+              //       connected_device + ' bağlantısı koptu'
+              //       // + TimeOfDay.now().toString()
+              //       ,
+              //       textAlign: TextAlign.center,
+              //     ),
+              //   ),
+              // );
               // await Scaffold.of(context).showSnackBar(snackBar);
             }),
           });
@@ -642,17 +660,33 @@ class _MyAppState extends State<MyApp> {
         my_device_connected = true;
         file = new File('logs/file.txt');
         sink = file.openWrite();
-        showDialog(
-            context: context,
-            child: new AlertDialog(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(80.0)),
-              // title: new Text("My Super title"),
-              content: new Text(
-                server.name + ' bağlandı',
-                textAlign: TextAlign.center,
-              ),
-            ));
+        showCupertinoDialog(
+          context: context,
+          builder: (BuildContext context) => new CupertinoAlertDialog(
+            title: new Text("Bağlantı Bilgisi"),
+            content: new Text(server.name + ' bağlandı'),
+            actions: <Widget>[
+              CupertinoDialogAction(
+                  isDefaultAction: true,
+                  child: Text("Tamam"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  }),
+            ],
+          ),
+        );
+
+        // showDialog(
+        //     context: context,
+        //     child: new AlertDialog(
+        //       shape: RoundedRectangleBorder(
+        //           borderRadius: BorderRadius.circular(80.0)),
+        //       // title: new Text("My Super title"),
+        //       content: new Text(
+        //         server.name + ' bağlandı',
+        //         textAlign: TextAlign.center,
+        //       ),
+        //     ));
       });
 
       streamController.addStream(connection.input);
