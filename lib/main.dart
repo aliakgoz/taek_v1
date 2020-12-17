@@ -521,35 +521,39 @@ class _MyAppState extends State<MyApp> {
                                         ? Colors.orange[800]
                                         : Colors.red
                             : Colors.grey,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              double_count < 1000.0
-                                  ? '\u00B5Sv/saat'
-                                  : double_count < 1000000.0
-                                      ? 'mSv/saat'
-                                      : 'Sv/saat',
-                              style:
-                                  TextStyle(fontSize: 25, color: Colors.white),
-                            ),
-                            Text(
-                              double_count < 1000.0
-                                  ? double_count.toStringAsFixed(3)
-                                  : double_count < 1000000.0
-                                      ? (double_count / 1000.0)
-                                          .toStringAsFixed(3)
-                                      : (double_count / 1000000.0)
-                                          .toStringAsFixed(3),
-                              style: TextStyle(
-                                  fontSize:
-                                      double_count.toStringAsFixed(3).length < 6
-                                          ? 43
-                                          : 33,
-                                  color: Colors.white),
-                            ),
-                          ],
-                        ),
+                        child: my_device_connected
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text(
+                                    double_count < 1000.0
+                                        ? '\u00B5Sv/saat'
+                                        : double_count < 1000000.0
+                                            ? 'mSv/saat'
+                                            : 'Sv/saat',
+                                    style: TextStyle(
+                                        fontSize: 25, color: Colors.white),
+                                  ),
+                                  Text(
+                                    double_count < 1000.0
+                                        ? double_count.toStringAsFixed(3)
+                                        : double_count < 1000000.0
+                                            ? (double_count / 1000.0)
+                                                .toStringAsFixed(3)
+                                            : (double_count / 1000000.0)
+                                                .toStringAsFixed(3),
+                                    style: TextStyle(
+                                        fontSize: double_count
+                                                    .toStringAsFixed(3)
+                                                    .length <
+                                                6
+                                            ? 43
+                                            : 33,
+                                        color: Colors.white),
+                                  ),
+                                ],
+                              )
+                            : Text(''),
                         radius: 70.0,
                         //shape: BoxShape.circle
                       ),
