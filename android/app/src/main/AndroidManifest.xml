@@ -9,9 +9,10 @@
     <uses-sdk tools:overrideLibrary="io.github.edufolly.flutterbluetoothserial"/>
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="flutter_basics_quiz_app"
-        android:icon="@mipmap/ic_launcher">
+        android:label="NükenSSD"
+        android:icon="@mipmap/launcher_icon">
         <activity
+            
             android:name=".MainActivity"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"

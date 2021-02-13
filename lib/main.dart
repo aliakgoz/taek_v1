@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:math';
+import 'package:intl/intl.dart';
 
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -11,6 +14,7 @@ import 'package:flutter_beep/flutter_beep.dart';
 import 'package:battery_indicator/battery_indicator.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import './infopage.dart';
 import './archivepage.dart';
@@ -19,6 +23,8 @@ import './BackgroundCollectingTask.dart';
 import './MainPage.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
   runApp(MaterialApp(
     home: MyApp(), // becomes the route named '/'
   ));
@@ -74,6 +80,7 @@ var my_conn_notifier;
 DateTime now = DateTime.now();
 var filename = '';
 var logarchivelist;
+var datano = 0;
 
 var batteryIndicator = new BatteryIndicator(
   style: BatteryIndicatorStyle.values[_styleIndex],
@@ -88,7 +95,7 @@ var batteryIndicator = new BatteryIndicator(
 
 class _MyAppState extends State<MyApp> {
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
-
+  final Future<FirebaseApp> _fbApp = Firebase.initializeApp();
   String _address = "...";
   String _name = "...";
   String _messageBuffer = '';
@@ -210,9 +217,22 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _onDataReceived(Uint8List data) {
+    var doztime = '${new DateTime.now()}';
     print('Data:');
     print(data);
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyyMMdd').format(now);
     // Allocate buffer for parsed data
+    DatabaseReference _testRef = FirebaseDatabase.instance
+        .reference()
+        .child(connected_device)
+        .child('Doz')
+        .child(formattedDate)
+        .child('${new DateTime.now()}'
+            .replaceAll('-', '')
+            .replaceAll(':', '')
+            .replaceAll(' ', '')
+            .replaceAll('.', '_'));
 
     Uint8List buffer = Uint8List(data.length);
 
@@ -224,6 +244,7 @@ class _MyAppState extends State<MyApp> {
     print(index);
     if (~index != 0) {
       setState(() {
+        datano = datano + 1;
         String myString = _messageBuffer + dataString.substring(0, index);
         _messageBuffer = dataString.substring(index);
         print(_messageBuffer);
@@ -231,6 +252,7 @@ class _MyAppState extends State<MyApp> {
         ham_count = receivedData.split(',')[0];
         double_count = double.parse(ham_count);
 
+        _testRef.set(double_count);
         print(receivedData.split(','));
         print(ham_count);
 
@@ -369,261 +391,285 @@ class _MyAppState extends State<MyApp> {
 
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        key: _myapp_key,
-        resizeToAvoidBottomPadding: false,
-        extendBodyBehindAppBar: true,
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          //title: Text('My First App'),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          actions: <Widget>[
-            // action button
-            IconButton(
-              icon: Icon(
-                bl_icon_ilk,
-                color: Colors.blue,
-              ),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MainPage()));
-              },
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.archive,
-                color: Colors.black,
-              ),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Myarchivepage(logarchivelist)));
-              },
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.info_outline,
-                color: Colors.black,
-              ),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => Myinfopage()));
-              },
-            ),
-            // action button
-          ],
-        ),
-        body: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('imgs/taeklogo.png'),
-                colorFilter: ColorFilter.mode(
-                    Colors.white.withOpacity(0.2), BlendMode.dstATop),
-                fit: BoxFit.contain,
-              ),
-            ),
-            constraints: BoxConstraints.expand(),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    alignment: Alignment.bottomCenter,
-                    // constraints: BoxConstraints(minHeight: 100, maxHeight: 200),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        Text("\n\nNükleer Enerji Araştırma Enstitüsü",
-                            style: TextStyle(
-                                fontSize: 35,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.indigo),
-                            textAlign: TextAlign.center),
-                        Text("Sintilatörlü Dozimetre Cihazı\n",
-                            style:
-                                TextStyle(fontSize: 30, color: Colors.indigo),
-                            textAlign: TextAlign.center),
-                      ],
-                    ),
+        home: FutureBuilder(
+      future: _fbApp,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          print(
+              'Firebase bağlantısında hata oluştu! ${snapshot.error.toString()}');
+          return Text('Firebase bağlantısında hata oluştu!');
+        } else if (snapshot.hasData) {
+          return Scaffold(
+            key: _myapp_key,
+            resizeToAvoidBottomPadding: false,
+            extendBodyBehindAppBar: true,
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              //title: Text('My First App'),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              actions: <Widget>[
+                // action button
+                IconButton(
+                  icon: Icon(
+                    bl_icon_ilk,
+                    color: Colors.blue,
                   ),
-                  RaisedButton(
-                    onPressed: () async {
-                      final BluetoothDevice selectedDevice =
-                          await Navigator.of(context).push(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => MainPage()));
+                  },
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.archive,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
                         MaterialPageRoute(
-                          builder: (context) {
-                            return SelectBondedDevicePage(
-                                checkAvailability: false);
-                          },
+                            builder: (context) =>
+                                Myarchivepage(logarchivelist)));
+                  },
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.info_outline,
+                    color: Colors.black,
+                  ),
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Myinfopage()));
+                  },
+                ),
+                // action button
+              ],
+            ),
+            body: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('imgs/tenmaklogo.png'),
+                    colorFilter: ColorFilter.mode(
+                        Colors.white.withOpacity(0.2), BlendMode.dstATop),
+                    fit: BoxFit.contain,
+                    alignment: Alignment.bottomCenter,
+                  ),
+                ),
+                constraints: BoxConstraints.expand(),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        alignment: Alignment.bottomCenter,
+                        // constraints: BoxConstraints(minHeight: 100, maxHeight: 200),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Text("\n\nNükleer Enerji Araştırma Enstitüsü",
+                                style: TextStyle(
+                                    fontSize: 35,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.indigo),
+                                textAlign: TextAlign.center),
+                            Text("Sintilatörlü Dozimetre Cihazı\n",
+                                style: TextStyle(
+                                    fontSize: 30, color: Colors.indigo),
+                                textAlign: TextAlign.center),
+                          ],
                         ),
-                      );
+                      ),
+                      RaisedButton(
+                        onPressed: () async {
+                          final BluetoothDevice selectedDevice =
+                              await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return SelectBondedDevicePage(
+                                    checkAvailability: false);
+                              },
+                            ),
+                          );
 
-                      if (selectedDevice != null) {
-                        print('Connect -> selected ' + selectedDevice.address);
-                        _startChat(context, selectedDevice);
-                      } else {
-                        print('Connect -> no device selected');
-                      }
-                    },
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(80.0)),
-                    padding: EdgeInsets.all(0.0),
-                    child: Ink(
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.indigo,
-                              Colors.blueAccent,
-                            ], //Colors.blueGrey, Colors.redAccent
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          borderRadius: BorderRadius.circular(30.0)),
-                      child: Container(
-                        constraints:
-                            BoxConstraints(maxWidth: 250.0, minHeight: 50.0),
-                        alignment: Alignment.center,
-                        child: Text(
-                          orta_dugme,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
+                          if (selectedDevice != null) {
+                            print('Connect -> selected ' +
+                                selectedDevice.address);
+                            _startChat(context, selectedDevice);
+                          } else {
+                            print('Connect -> no device selected');
+                          }
+                        },
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(80.0)),
+                        padding: EdgeInsets.all(0.0),
+                        child: Ink(
+                          decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.indigo,
+                                  Colors.blueAccent,
+                                ], //Colors.blueGrey, Colors.redAccent
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ),
+                              borderRadius: BorderRadius.circular(30.0)),
+                          child: Container(
+                            constraints: BoxConstraints(
+                                maxWidth: 250.0, minHeight: 50.0),
+                            alignment: Alignment.center,
+                            child: Text(
+                              orta_dugme,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  AvatarGlow(
-                    startDelay: Duration(milliseconds: 1000),
-                    glowColor: double_count < 1000.0
-                        ? Colors.green
-                        : double_count < 1000000.0 ? Colors.yellow : Colors.red,
-                    endRadius: 120.0,
-                    duration: Duration(milliseconds: 1000),
-                    repeat: true,
-                    showTwoGlows: true,
-                    repeatPauseDuration: Duration(milliseconds: 100),
-                    child: Material(
-                      elevation: 8.0,
-                      shape: CircleBorder(),
-                      child: CircleAvatar(
-                        backgroundColor: my_device_connected
-                            ? double_count < 10.0
-                                ? Colors.green
-                                : double_count < 10000.0
-                                    ? Colors.yellow[800]
-                                    : double_count < 1000000.0
-                                        ? Colors.orange[800]
-                                        : Colors.red
-                            : Colors.grey,
-                        child: my_device_connected
-                            ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Text(
-                                    double_count < 1000.0
-                                        ? '\u00B5Sv/saat'
-                                        : double_count < 1000000.0
-                                            ? 'mSv/saat'
-                                            : 'Sv/saat',
-                                    style: TextStyle(
-                                        fontSize: 25, color: Colors.white),
-                                  ),
-                                  Text(
-                                    double_count < 1000.0
-                                        ? double_count.toStringAsFixed(3)
-                                        : double_count < 1000000.0
-                                            ? (double_count / 1000.0)
-                                                .toStringAsFixed(3)
-                                            : (double_count / 1000000.0)
-                                                .toStringAsFixed(3),
-                                    style: TextStyle(
-                                        fontSize: double_count
-                                                    .toStringAsFixed(3)
-                                                    .length <
-                                                6
-                                            ? 43
-                                            : 33,
-                                        color: Colors.white),
-                                  ),
-                                ],
-                              )
-                            : Text(''),
-                        radius: 70.0,
-                        //shape: BoxShape.circle
-                      ),
-                    ),
-                    shape: BoxShape.circle,
-                    animate: avaratar_glow_on,
-                    curve: Curves.fastOutSlowIn, //Curves.fastOutSlowIn,
-                  ),
-                  Opacity(
-                    opacity: device_info_icons_on,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        IconButton(
-                          icon: Icon(
-                            Icons.radio_button_checked,
-                            color: connection == null
-                                ? Colors.grey
-                                : connection.isConnected
+                      AvatarGlow(
+                        startDelay: Duration(milliseconds: 1000),
+                        glowColor: double_count < 1000.0
+                            ? Colors.green
+                            : double_count < 1000000.0
+                                ? Colors.yellow
+                                : Colors.red,
+                        endRadius: 120.0,
+                        duration: Duration(milliseconds: 1000),
+                        repeat: true,
+                        showTwoGlows: true,
+                        repeatPauseDuration: Duration(milliseconds: 100),
+                        child: Material(
+                          elevation: 8.0,
+                          shape: CircleBorder(),
+                          child: CircleAvatar(
+                            backgroundColor: my_device_connected
+                                ? double_count < 10.0
                                     ? Colors.green
-                                    : Colors.red,
+                                    : double_count < 10000.0
+                                        ? Colors.yellow[800]
+                                        : double_count < 1000000.0
+                                            ? Colors.orange[800]
+                                            : Colors.red
+                                : Colors.grey,
+                            child: my_device_connected
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Text(
+                                        double_count < 1000.0
+                                            ? '\u00B5Sv/saat'
+                                            : double_count < 1000000.0
+                                                ? 'mSv/saat'
+                                                : 'Sv/saat',
+                                        style: TextStyle(
+                                            fontSize: 25, color: Colors.white),
+                                      ),
+                                      Text(
+                                        double_count < 1000.0
+                                            ? double_count.toStringAsFixed(3)
+                                            : double_count < 1000000.0
+                                                ? (double_count / 1000.0)
+                                                    .toStringAsFixed(3)
+                                                : (double_count / 1000000.0)
+                                                    .toStringAsFixed(3),
+                                        style: TextStyle(
+                                            fontSize: double_count
+                                                        .toStringAsFixed(3)
+                                                        .length <
+                                                    6
+                                                ? 43
+                                                : 33,
+                                            color: Colors.white),
+                                      ),
+                                    ],
+                                  )
+                                : Text(''),
+                            radius: 70.0,
+                            //shape: BoxShape.circle
                           ),
                         ),
-                        Text(connected_device + ':      '),
-                        new BatteryIndicator(
-                          style: BatteryIndicatorStyle.values[_styleIndex],
-                          colorful: _colorful,
-                          showPercentNum: _showPercentNum,
-                          mainColor: _color,
-                          size: _size,
-                          ratio: _ratio,
-                          showPercentSlide: _showPercentSlide,
-                          batteryLv: battery_level,
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.volume_down,
-                            color: sound_enabled ? Colors.blue : Colors.grey,
+                        shape: BoxShape.circle,
+                        animate: avaratar_glow_on,
+                        curve: Curves.fastOutSlowIn, //Curves.fastOutSlowIn,
+                      ),
+                      Opacity(
+                        opacity: device_info_icons_on,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              IconButton(
+                                icon: Icon(
+                                  Icons.radio_button_checked,
+                                  color: connection == null
+                                      ? Colors.grey
+                                      : connection.isConnected
+                                          ? Colors.green
+                                          : Colors.red,
+                                ),
+                              ),
+                              Text(connected_device + ':  '),
+                              new BatteryIndicator(
+                                style:
+                                    BatteryIndicatorStyle.values[_styleIndex],
+                                colorful: _colorful,
+                                showPercentNum: _showPercentNum,
+                                mainColor: _color,
+                                size: _size,
+                                ratio: _ratio,
+                                showPercentSlide: _showPercentSlide,
+                                batteryLv: battery_level,
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.volume_down,
+                                  color:
+                                      sound_enabled ? Colors.blue : Colors.grey,
+                                ),
+                                onPressed: () => {
+                                  sound_enabled
+                                      ? sound_enabled = false
+                                      : sound_enabled = true,
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.save),
+                                onPressed: send,
+                              ),
+                              Text(temp_level.toString() + " \u2103"),
+                              IconButton(
+                                  icon: Icon(Icons.do_not_disturb_on),
+                                  color: connection != null
+                                      ? connection.isConnected
+                                          ? Colors.red[900]
+                                          : Colors.grey
+                                      : Colors.red[900],
+                                  onPressed: connection != null
+                                      ? () => {
+                                            connection.close(),
+                                          }
+                                      : null),
+                            ],
                           ),
-                          onPressed: () => {
-                            sound_enabled
-                                ? sound_enabled = false
-                                : sound_enabled = true,
-                          },
                         ),
-                        IconButton(
-                          icon: Icon(Icons.save),
-                          onPressed: send,
-                        ),
-                        Text(temp_level.toString() + " \u2103"),
-                        IconButton(
-                            icon: Icon(Icons.do_not_disturb_on),
-                            color: connection != null
-                                ? connection.isConnected
-                                    ? Colors.red[900]
-                                    : Colors.grey
-                                : Colors.red[900],
-                            onPressed: connection != null
-                                ? () => {
-                                      connection.close(),
-                                    }
-                                : null),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            )),
-      ),
-    );
+                )),
+          );
+        } else {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
+    ));
   }
 
   bool isDisconnecting = false;
