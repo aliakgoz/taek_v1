@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import 'package:avatar_glow/avatar_glow.dart';
@@ -15,6 +17,8 @@ import 'package:battery_indicator/battery_indicator.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+// import 'package:syncfusion_flutter_charts/charts.dart';
+// import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
 import './infopage.dart';
 import './archivepage.dart';
@@ -40,7 +44,8 @@ class MyApp extends StatefulWidget {
   get isConnected => connection != null && connection.isConnected;
 }
 
-GlobalKey _myapp_key = GlobalKey();
+// GlobalKey _myapp_key = GlobalKey();
+BluetoothDevice mydevice;
 
 BluetoothConnection connection;
 bool isConnecting;
@@ -81,6 +86,13 @@ DateTime now = DateTime.now();
 var filename = '';
 var logarchivelist;
 var datano = 0;
+var anlik_doz = '';
+var ortalama_dozlist = new List(10);
+List<double> myChartData = List<double>();
+var dozcount = 0;
+var ortalama_doz = 0.0;
+var ort_doz = '';
+final statusLine = new ValueNotifier('');
 
 var batteryIndicator = new BatteryIndicator(
   style: BatteryIndicatorStyle.values[_styleIndex],
@@ -99,7 +111,7 @@ class _MyAppState extends State<MyApp> {
   String _address = "...";
   String _name = "...";
   String _messageBuffer = '';
-  String my_log = "";
+  // String my_log = "";
   // var sink = new File('file.txt').openWrite();
 
   Timer _discoverableTimeoutTimer;
@@ -116,7 +128,7 @@ class _MyAppState extends State<MyApp> {
       await _localPath;
     }();
     filename =
-        'TAEK_v1_log_${now.year.toString()}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
+        'NÜKEN_SSD_log_${now.year.toString()}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
 
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
@@ -197,8 +209,8 @@ class _MyAppState extends State<MyApp> {
     final path = await _localPath;
     final Email email = Email(
       body:
-          'TAEK01 adlı cihazın ${now.year.toString()}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} tarihli log kaydı ektedir.',
-      subject: 'TAEK01 LOG KAYDI',
+          '$connected_device adlı cihazın ${now.year.toString()}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} tarihli log kaydı ektedir.',
+      subject: '$connected_device LOG KAYDI',
       recipients: [],
       attachmentPaths: ['$path/$filename.txt'],
       isHTML: false,
@@ -216,8 +228,18 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
   }
 
+  double average(List nums) {
+    var sum = 0.0;
+
+    for (var i = 0; i < nums.length; i++) {
+      sum += nums[i];
+    }
+    return sum / nums.length;
+  }
+
   void _onDataReceived(Uint8List data) {
     var doztime = '${new DateTime.now()}';
+
     print('Data:');
     print(data);
     DateTime now = DateTime.now();
@@ -245,6 +267,7 @@ class _MyAppState extends State<MyApp> {
     if (~index != 0) {
       setState(() {
         datano = datano + 1;
+        dozcount = dozcount + 1;
         String myString = _messageBuffer + dataString.substring(0, index);
         _messageBuffer = dataString.substring(index);
         print(_messageBuffer);
@@ -252,6 +275,23 @@ class _MyAppState extends State<MyApp> {
         ham_count = receivedData.split(',')[0];
         double_count = double.parse(ham_count);
 
+        myChartData.add(double_count);
+
+        anlik_doz = double_count < 1000.0
+            ? double_count.toStringAsFixed(3)
+            : double_count < 1000000.0
+                ? (double_count / 1000.0).toStringAsFixed(3)
+                : (double_count / 1000000.0).toStringAsFixed(3);
+
+        ortalama_dozlist[dozcount % 10] = double_count;
+        ortalama_doz = average(ortalama_dozlist);
+
+        ort_doz = ortalama_doz < 1000.0
+            ? ortalama_doz.toStringAsFixed(2) + ' \u00B5Sv/s'
+            : ortalama_doz < 1000000.0
+                ? (ortalama_doz / 1000.0).toStringAsFixed(2) + 'mSv/s'
+                : (ortalama_doz / 1000000.0).toStringAsFixed(2) + 'Sv/s';
+        print(ort_doz);
         _testRef.set(double_count);
         print(receivedData.split(','));
         print(ham_count);
@@ -260,31 +300,32 @@ class _MyAppState extends State<MyApp> {
         ham_bat = receivedData.split(',')[2];
         print(ham_temp);
         print(ham_bat);
-        battery_level = ((double.parse(ham_bat) % 1024) / 1024 * 100).round();
+        battery_level =
+            min(100, ((double.parse(ham_bat) - 820) / 130 * 100).round());
         temp_level =
             ((double.parse(ham_temp) % 1024) / 1024 * 100).round(); //<>
-        my_log = my_log +
-            '${new DateTime.now()} : CPM: ' +
+        // my_log = my_log +
+        //     '${new DateTime.now()} : CPM: ' +
+        //     double_count.toStringAsFixed(3) +
+        //     ' BATTERY LEVEL: ' +
+        //     battery_level.toString() +
+        //     ' TEMP: ' +
+        //     temp_level.toString() +
+        //     '\n';
+        writeCounts('$connected_device - ${new DateTime.now()} : Doz: ' +
             double_count.toStringAsFixed(3) +
-            ' BATTERY LEVEL: ' +
+            ' Batarya Seviyesi: ' +
             battery_level.toString() +
-            ' TEMP: ' +
-            temp_level.toString() +
-            '\n';
-        writeCounts('${new DateTime.now()} : CPM: ' +
-            double_count.toStringAsFixed(3) +
-            ' BATTERY LEVEL: ' +
-            battery_level.toString() +
-            ' TEMP: ' +
+            ' Sıcaklık: ' +
             temp_level.toString() +
             '\n');
-        sink.write('  ${new DateTime.now()} : ' +
-            double_count.toStringAsFixed(3) +
-            ' ' +
-            battery_level.toString() +
-            ' ' +
-            temp_level.toString() +
-            '<br>\n');
+        // sink.write('  ${new DateTime.now()} : ' +
+        //     double_count.toStringAsFixed(3) +
+        //     ' ' +
+        //     battery_level.toString() +
+        //     ' ' +
+        //     temp_level.toString() +
+        //     '<br>\n');
 
         sound_enabled
             ? double_count < 100.0
@@ -351,7 +392,7 @@ class _MyAppState extends State<MyApp> {
       await waitWhile(() => connection.isConnected).then((value) => {
             setState(() {
               my_device_connected = false;
-              sink.close();
+              // sink.close();
 
               showCupertinoDialog(
                 context: context,
@@ -395,13 +436,28 @@ class _MyAppState extends State<MyApp> {
       future: _fbApp,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          print(
-              'Firebase bağlantısında hata oluştu! ${snapshot.error.toString()}');
+          showCupertinoDialog(
+            context: context,
+            builder: (BuildContext context) => new CupertinoAlertDialog(
+              title: new Text("Veritabanı Bağlantı Bilgisi"),
+              content: new Text(
+                  'Firebase bağlantısında hata oluştu! ${snapshot.error.toString()}'),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                    isDefaultAction: true,
+                    child: Text("Tamam"),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+              ],
+            ),
+          );
+          // print(
+          //     'Firebase bağlantısında hata oluştu! ${snapshot.error.toString()}');
           return Text('Firebase bağlantısında hata oluştu!');
         } else if (snapshot.hasData) {
           return Scaffold(
-            key: _myapp_key,
-            resizeToAvoidBottomPadding: false,
+            resizeToAvoidBottomInset: false,
             extendBodyBehindAppBar: true,
             backgroundColor: Colors.white,
             appBar: AppBar(
@@ -410,16 +466,16 @@ class _MyAppState extends State<MyApp> {
               elevation: 0,
               actions: <Widget>[
                 // action button
-                IconButton(
-                  icon: Icon(
-                    bl_icon_ilk,
-                    color: Colors.blue,
-                  ),
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => MainPage()));
-                  },
-                ),
+                // IconButton(
+                //   icon: Icon(
+                //     bl_icon_ilk,
+                //     color: Colors.blue,
+                //   ),
+                //   onPressed: () {
+                //     Navigator.push(context,
+                //         MaterialPageRoute(builder: (context) => MainPage()));
+                //   },
+                // ),
                 IconButton(
                   icon: Icon(
                     Icons.archive,
@@ -469,16 +525,35 @@ class _MyAppState extends State<MyApp> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
-                            Text("\n\nNükleer Enerji Araştırma Enstitüsü",
-                                style: TextStyle(
-                                    fontSize: 35,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.indigo),
+                            Container(
+                              padding: const EdgeInsets.only(
+                                  left: 0, bottom: 0, right: 0, top: 60),
+                              child: Text("TENMAK",
+                                  style: GoogleFonts.kanit(
+                                      fontStyle: FontStyle.normal,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.indigo,
+                                      fontSize: 40),
+                                  textAlign: TextAlign.center),
+                            ),
+                            Text("NÜKEN",
+                                style: GoogleFonts.nunito(
+                                    fontStyle: FontStyle.normal,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.indigo,
+                                    fontSize: 30),
                                 textAlign: TextAlign.center),
-                            Text("Sintilatörlü Dozimetre Cihazı\n",
-                                style: TextStyle(
-                                    fontSize: 30, color: Colors.indigo),
-                                textAlign: TextAlign.center),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 0, bottom: 10, right: 10, top: 10),
+                              child: Text("Seramik Sintilatörlü Dozimetre",
+                                  style: GoogleFonts.nunito(
+                                      fontStyle: FontStyle.normal,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.indigo,
+                                      fontSize: 25),
+                                  textAlign: TextAlign.center),
+                            ),
                           ],
                         ),
                       ),
@@ -509,21 +584,21 @@ class _MyAppState extends State<MyApp> {
                           decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  Colors.indigo,
-                                  Colors.blueAccent,
+                                  Colors.blueGrey[400],
+                                  Colors.grey[700],
                                 ], //Colors.blueGrey, Colors.redAccent
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
-                              borderRadius: BorderRadius.circular(30.0)),
+                              borderRadius: BorderRadius.circular(20.0)),
                           child: Container(
                             constraints: BoxConstraints(
-                                maxWidth: 250.0, minHeight: 50.0),
+                                maxWidth: 250.0, minHeight: 40.0),
                             alignment: Alignment.center,
                             child: Text(
                               orta_dugme,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: GoogleFonts.rubik(
                                 color: Colors.white,
                                 fontSize: 20,
                               ),
@@ -538,7 +613,7 @@ class _MyAppState extends State<MyApp> {
                             : double_count < 1000000.0
                                 ? Colors.yellow
                                 : Colors.red,
-                        endRadius: 120.0,
+                        endRadius: 110.0,
                         duration: Duration(milliseconds: 1000),
                         repeat: true,
                         showTwoGlows: true,
@@ -570,13 +645,7 @@ class _MyAppState extends State<MyApp> {
                                             fontSize: 25, color: Colors.white),
                                       ),
                                       Text(
-                                        double_count < 1000.0
-                                            ? double_count.toStringAsFixed(3)
-                                            : double_count < 1000000.0
-                                                ? (double_count / 1000.0)
-                                                    .toStringAsFixed(3)
-                                                : (double_count / 1000000.0)
-                                                    .toStringAsFixed(3),
+                                        anlik_doz,
                                         style: TextStyle(
                                             fontSize: double_count
                                                         .toStringAsFixed(3)
@@ -586,6 +655,11 @@ class _MyAppState extends State<MyApp> {
                                                 : 33,
                                             color: Colors.white),
                                       ),
+                                      Text(
+                                        ort_doz,
+                                        style: TextStyle(
+                                            fontSize: 15, color: Colors.white),
+                                      ),
                                     ],
                                   )
                                 : Text(''),
@@ -594,9 +668,13 @@ class _MyAppState extends State<MyApp> {
                           ),
                         ),
                         shape: BoxShape.circle,
-                        animate: avaratar_glow_on,
+                        animate: my_device_connected && avaratar_glow_on,
                         curve: Curves.fastOutSlowIn, //Curves.fastOutSlowIn,
                       ),
+                      // Container(
+                      //     child: SfSparkLineChart(
+                      //   data: myChartData,
+                      // )),
                       Opacity(
                         opacity: device_info_icons_on,
                         child: SingleChildScrollView(
@@ -613,6 +691,12 @@ class _MyAppState extends State<MyApp> {
                                           ? Colors.green
                                           : Colors.red,
                                 ),
+                                onPressed: () {
+                                  if (connection != null &&
+                                      !connection.isConnected) {
+                                    _startChat(context, mydevice);
+                                  }
+                                },
                               ),
                               Text(connected_device + ':  '),
                               new BatteryIndicator(
@@ -642,7 +726,7 @@ class _MyAppState extends State<MyApp> {
                                 icon: Icon(Icons.save),
                                 onPressed: send,
                               ),
-                              Text(temp_level.toString() + " \u2103"),
+                              // Text(temp_level.toString() + " \u2103"),
                               IconButton(
                                   icon: Icon(Icons.do_not_disturb_on),
                                   color: connection != null
@@ -691,7 +775,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   var file;
-  var sink;
+  // var sink;
 
   void _startChat(BuildContext context, BluetoothDevice server) {
     StreamController<Uint8List> streamController =
@@ -700,6 +784,7 @@ class _MyAppState extends State<MyApp> {
     BluetoothConnection.toAddress(server.address).then((_connection) {
       print('Connected to the device');
       connection = _connection;
+      mydevice = server;
       setState(() {
         isConnecting = false;
         isDisconnecting = false;
@@ -707,8 +792,8 @@ class _MyAppState extends State<MyApp> {
         connected_device = server.name;
         my_server_adress = server.address;
         my_device_connected = true;
-        file = new File('logs/file.txt');
-        sink = file.openWrite();
+        // file = new File('logs/file.txt');
+        // sink = file.openWrite();
         showCupertinoDialog(
           context: context,
           builder: (BuildContext context) => new CupertinoAlertDialog(

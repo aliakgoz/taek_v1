@@ -28,15 +28,15 @@ class _MyplotpageState extends State<Myplotpage> {
       try {
         print(myfile[i]);
         data.add(Point(
-          double.parse(myfile[i].split(' ')[4]),
+          double.parse(myfile[i].split(' ')[6]),
           DateTime.parse(
-                  myfile[i].split(' ')[0] + ' ' + myfile[i].split(' ')[1])
+                  myfile[i].split(' ')[2] + ' ' + myfile[i].split(' ')[3])
               .difference(DateTime.parse(
-                  myfile[0].split(' ')[0] + ' ' + myfile[0].split(' ')[1]))
+                  myfile[0].split(' ')[2] + ' ' + myfile[0].split(' ')[3]))
               .inSeconds,
         ));
         print(data[i]);
-        print(double.parse(myfile[i].split(' ')[4]));
+        print(double.parse(myfile[i].split(' ')[7]));
       } finally {
         continue;
       }

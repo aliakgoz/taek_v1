@@ -61,8 +61,8 @@ class _MyarchivepageState extends State<Myarchivepage> {
                           icon: Icon(Icons.share),
                           onPressed: () async {
                             final Email email = Email(
-                              body: 'TAEK01 adlı cihazın log kaydı ektedir.',
-                              subject: 'TAEK01 LOG KAYDI',
+                              body: 'Cihazın log kaydı ektedir.',
+                              subject: 'LOG KAYDI',
                               recipients: [],
                               attachmentPaths: [
                                 w

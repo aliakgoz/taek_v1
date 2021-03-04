@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:Sintilatorlu_Dedektor_Aplikasyonu/SelectBondedDevicePage.dart';
+import 'package:Sintilatorlu_Dedektor_Aplikasyonu/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
@@ -69,6 +71,13 @@ class _DiscoveryPage extends State<DiscoveryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => MyApp()))
+          },
+        ),
         title: isDiscovering
             ? Text('Cihazları Tarıyor')
             : Text('Cihazlar Bulundu'),
@@ -92,60 +101,63 @@ class _DiscoveryPage extends State<DiscoveryPage> {
         itemCount: results.length,
         itemBuilder: (BuildContext context, index) {
           BluetoothDiscoveryResult result = results[index];
-          return BluetoothDeviceListEntry(
-            device: result.device,
-            rssi: result.rssi,
-            // onTap: () {
-            //   Navigator.of(context).pop(result.device);
-            // },
-            onTap: () async {
-              try {
-                bool bonded = false;
-                if (result.device.isBonded) {
-                  print('Eşleşme  sonlandırılıyor ${result.device.address}...');
-                  await FlutterBluetoothSerial.instance
-                      .removeDeviceBondWithAddress(result.device.address);
-                  print(
-                      '${result.device.address} cihaz ile olan eşleşme sonlandırıldı');
-                } else {
-                  print('${result.device.address} ile eşleniyor...');
-                  bonded = await FlutterBluetoothSerial.instance
-                      .bondDeviceAtAddress(result.device.address);
-                  print(
-                      'Eşleşme ${result.device.address} ${bonded ? 'succed' : 'failed'}.');
-                }
-                setState(() {
-                  results[results.indexOf(result)] = BluetoothDiscoveryResult(
-                      device: BluetoothDevice(
-                        name: result.device.name ?? '',
-                        address: result.device.address,
-                        type: result.device.type,
-                        bondState: bonded
-                            ? BluetoothBondState.bonded
-                            : BluetoothBondState.none,
-                      ),
-                      rssi: result.rssi);
-                });
-              } catch (ex) {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Eşleşirken hata oluştu'),
-                      content: Text("${ex.toString()}"),
-                      actions: <Widget>[
-                        new FlatButton(
-                          child: new Text("Kapat"),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
+          return Card(
+            child: BluetoothDeviceListEntry(
+              device: result.device,
+              rssi: result.rssi,
+              // onTap: () {
+              //   Navigator.of(context).pop(result.device);
+              // },
+              onTap: () async {
+                try {
+                  bool bonded = false;
+                  if (result.device.isBonded) {
+                    print(
+                        'Eşleşme  sonlandırılıyor ${result.device.address}...');
+                    await FlutterBluetoothSerial.instance
+                        .removeDeviceBondWithAddress(result.device.address);
+                    print(
+                        '${result.device.address} cihaz ile olan eşleşme sonlandırıldı');
+                  } else {
+                    print('${result.device.address} ile eşleniyor...');
+                    bonded = await FlutterBluetoothSerial.instance
+                        .bondDeviceAtAddress(result.device.address);
+                    print(
+                        'Eşleşme ${result.device.address} ${bonded ? 'succed' : 'failed'}.');
+                  }
+                  setState(() {
+                    results[results.indexOf(result)] = BluetoothDiscoveryResult(
+                        device: BluetoothDevice(
+                          name: result.device.name ?? '',
+                          address: result.device.address,
+                          type: result.device.type,
+                          bondState: bonded
+                              ? BluetoothBondState.bonded
+                              : BluetoothBondState.none,
                         ),
-                      ],
-                    );
-                  },
-                );
-              }
-            },
+                        rssi: result.rssi);
+                  });
+                } catch (ex) {
+                  // showDialog(
+                  //   context: context,
+                  //   builder: (BuildContext context) {
+                  //     return AlertDialog(
+                  //       title: const Text('Eşleşirken hata oluştu'),
+                  //       content: Text("${ex.toString()}"),
+                  //       actions: <Widget>[
+                  //         new FlatButton(
+                  //           child: new Text("Kapat"),
+                  //           onPressed: () {
+                  //             Navigator.of(context).pop();
+                  //           },
+                  //         ),
+                  //       ],
+                  //     );
+                  //   },
+                  // );
+                }
+              },
+            ),
           );
         },
       ),

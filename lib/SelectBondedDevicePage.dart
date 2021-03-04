@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:Sintilatorlu_Dedektor_Aplikasyonu/DiscoveryPage.dart';
+import 'package:Sintilatorlu_Dedektor_Aplikasyonu/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
@@ -9,7 +11,7 @@ class SelectBondedDevicePage extends StatefulWidget {
   /// Then, if they are not avaliable, they would be disabled from the selection.
   final bool checkAvailability;
 
-  const SelectBondedDevicePage({this.checkAvailability = true});
+  const SelectBondedDevicePage({this.checkAvailability = false});
 
   @override
   _SelectBondedDevicePage createState() => new _SelectBondedDevicePage();
@@ -42,11 +44,11 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
   void initState() {
     super.initState();
 
-    _isDiscovering = widget.checkAvailability;
+    // _isDiscovering = widget.checkAvailability;
 
-    if (_isDiscovering) {
-      _startDiscovery();
-    }
+    // if (_isDiscovering) {
+    //   _startDiscovery();
+    // }
 
     // Setup a list of the bonded devices
     FlutterBluetoothSerial.instance
@@ -65,6 +67,7 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
             .toList();
       });
     });
+    _isDiscovering = false;
   }
 
   void _restartDiscovery() {
@@ -76,25 +79,44 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
   }
 
   void _startDiscovery() {
-    _discoveryStreamSubscription =
-        FlutterBluetoothSerial.instance.startDiscovery().listen((r) {
-      setState(() {
-        Iterator i = devices.iterator;
-        while (i.moveNext()) {
-          var _device = i.current;
-          if (_device.device == r.device) {
-            _device.availability = _DeviceAvailability.yes;
-            _device.rssi = r.rssi;
-          }
-        }
+    setState(() {
+      FlutterBluetoothSerial.instance
+          .getBondedDevices()
+          .then((List<BluetoothDevice> bondedDevices) {
+        setState(() {
+          devices = bondedDevices
+              .map(
+                (device) => _DeviceWithAvailability(
+                  device,
+                  widget.checkAvailability
+                      ? _DeviceAvailability.maybe
+                      : _DeviceAvailability.yes,
+                ),
+              )
+              .toList();
+        });
       });
+      _isDiscovering = false;
     });
+    // _discoveryStreamSubscription =
+    //     FlutterBluetoothSerial.instance.startDiscovery().listen((r) {
+    //   setState(() {
+    //     Iterator i = devices.iterator;
+    //     while (i.moveNext()) {
+    //       var _device = i.current;
+    //       if (_device.device == r.device) {
+    //         _device.availability = _DeviceAvailability.yes;
+    //         _device.rssi = r.rssi;
+    //       }
+    //     }
+    //   });
+    // });
 
-    _discoveryStreamSubscription.onDone(() {
-      setState(() {
-        _isDiscovering = false;
-      });
-    });
+    // _discoveryStreamSubscription.onDone(() {
+    //   setState(() {
+    //     _isDiscovering = false;
+    //   });
+    // });
   }
 
   @override
@@ -119,6 +141,13 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
         .toList();
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => MyApp()))
+          },
+        ),
         title: Text('Cihazı Seçin'),
         actions: <Widget>[
           _isDiscovering
@@ -138,7 +167,24 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
                 )
         ],
       ),
-      body: ListView(children: list),
+      body: Container(
+          child: Column(
+        children: [
+          Container(
+            child: Text('Mevcut Cihazlardan Seç'),
+          ),
+          Expanded(child: ListView(children: list)),
+          Divider(),
+          // DiscoveryPage(),
+
+          RaisedButton(
+              child: const Text('Yeni Cihaz Eşleştir'),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => DiscoveryPage()));
+              }),
+        ],
+      )),
     );
   }
 }
