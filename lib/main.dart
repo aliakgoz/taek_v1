@@ -26,6 +26,7 @@ import './SelectBondedDevicePage.dart';
 import './BackgroundCollectingTask.dart';
 import './MainPage.dart';
 
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp();

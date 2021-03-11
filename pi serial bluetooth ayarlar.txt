@@ -22,7 +22,9 @@ sudo nano bluetooth_adv  (açılan dosyaya aşağıdaki 2 satırı yaz)
 sudo chmod +x bluetooth_adv
 sudo ./bluetooth_adv
 
-
+sudo apt update
+sudo apt install python3-pip
+sudo pip3 install pybluez
 
 sudo python3 rfcomm-server.py
 
